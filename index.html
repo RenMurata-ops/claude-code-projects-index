@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Claude Code Projects Index — Ren Murata</title>
+<meta name="description" content="Claude Code CLI で組み上げてきたアプリ・Webサービス・LP・構想の一覧。" />
+<style>
+  :root {
+    --bg: #0e0f12;
+    --bg-2: #15171c;
+    --bg-card: #181a20;
+    --line: #25282f;
+    --text: #e8e9ec;
+    --muted: #8b8f99;
+    --accent: #ff6b3d;
+    --accent-2: #f3c969;
+    --green: #7ec88a;
+    --blue: #6aa6ff;
+    --purple: #b48cff;
+    --pink: #ff8cb6;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 56px 24px 96px; }
+  header.intro {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 36px;
+    margin-bottom: 36px;
+  }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .18em; color: var(--muted);
+    text-transform: uppercase;
+  }
+  h1 {
+    font-size: 40px; line-height: 1.2; margin: 12px 0 8px;
+    font-weight: 700; letter-spacing: -0.01em;
+  }
+  h1 .accent { color: var(--accent); }
+  .lede {
+    color: var(--muted); font-size: 16px; max-width: 780px; margin: 0;
+  }
+  .stats {
+    margin-top: 24px;
+    display: flex; gap: 28px; flex-wrap: wrap;
+    font-size: 13px; color: var(--muted);
+  }
+  .stats b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .controls {
+    position: sticky; top: 0;
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg) 70%, rgba(14,15,18,0));
+    padding: 14px 0 22px;
+    margin-bottom: 18px;
+    z-index: 10;
+    border-bottom: 1px solid var(--line);
+  }
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  }
+  .filter-btn {
+    background: var(--bg-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .15s, border-color .15s;
+  }
+  .filter-btn:hover { border-color: var(--muted); }
+  .filter-btn.active {
+    background: var(--accent);
+    color: #1a0e07;
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+  .filter-count { color: var(--muted); margin-left: 6px; font-variant-numeric: tabular-nums; }
+  .filter-btn.active .filter-count { color: #4a2c14; }
+  .search {
+    margin-left: auto;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 7px 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    min-width: 220px;
+  }
+  .search:focus { outline: none; border-color: var(--accent); }
+  .grid {
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  }
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 18px 16px;
+    display: flex; flex-direction: column;
+    transition: border-color .15s, transform .15s;
+  }
+  .card:hover { border-color: #3a3e47; }
+  .card-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    margin-bottom: 6px;
+  }
+  .card-name {
+    font-size: 17px; font-weight: 700; letter-spacing: -0.005em;
+    color: var(--text);
+  }
+  .card-tag {
+    font-size: 10.5px; letter-spacing: .08em;
+    padding: 3px 8px; border-radius: 4px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    background: #20232a; color: var(--muted);
+    border: 1px solid var(--line);
+  }
+  .card-tag.cat-ios { color: var(--blue); border-color: #2a3344; }
+  .card-tag.cat-desktop { color: var(--purple); border-color: #322a44; }
+  .card-tag.cat-web { color: var(--green); border-color: #2a402d; }
+  .card-tag.cat-lp { color: var(--pink); border-color: #402a35; }
+  .card-tag.cat-tool { color: var(--accent-2); border-color: #403a25; }
+  .card-tag.cat-concept { color: #aaa; }
+  .card-tag.cat-chrome { color: #ff9a6b; border-color: #402d22; }
+  .card-tag.cat-scaffold { color: #6f7480; }
+  .card-tagline {
+    font-size: 13.5px; color: var(--muted); margin: 4px 0 10px;
+  }
+  .card-meta {
+    display: flex; flex-direction: column; gap: 4px;
+    font-size: 12px;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px dashed #23262d;
+  }
+  .meta-row { display: flex; gap: 8px; align-items: flex-start; }
+  .meta-key {
+    color: var(--muted); min-width: 56px; flex-shrink: 0;
+  }
+  .meta-val { color: var(--text); }
+  .meta-val.path { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; color: #b8bbc4; word-break: break-all; }
+  .status-dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    margin-right: 6px; vertical-align: 1px;
+  }
+  .status-live { background: var(--green); }
+  .status-dev { background: var(--accent); }
+  .status-mvp { background: var(--accent-2); }
+  .status-concept { background: var(--muted); }
+  .status-scaffold { background: #4a4d55; }
+  .section-title {
+    font-size: 14px; color: var(--muted);
+    margin: 40px 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+    letter-spacing: .04em;
+  }
+  .empty {
+    color: var(--muted); padding: 40px 0; text-align: center; font-size: 14px;
+  }
+  footer {
+    margin-top: 80px; padding-top: 28px; border-top: 1px solid var(--line);
+    color: var(--muted); font-size: 12px;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+  @media (max-width: 640px) {
+    .wrap { padding: 32px 18px 64px; }
+    h1 { font-size: 28px; }
+    .search { width: 100%; margin: 8px 0 0; min-width: 0; }
+    .filters { gap: 6px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="intro">
+  <div class="eyebrow">Claude Code Projects Index</div>
+  <h1>このiMacで組み上げてきた <span class="accent">プロダクト/構想</span> の一覧</h1>
+  <p class="lede">
+    Claude Code CLI を中核に、SwiftUI / Tauri / Cloudflare Workers / Next.js などを横断して構築してきたアプリ・Webサービス・LP・ツール・構想の総覧。
+    <code>~/.claude/projects/.../memory/</code> に記録された設計メモと、ホーム配下の実体ディレクトリ走査をマージして自動生成しています。
+  </p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<div class="controls">
+  <div class="filters" id="filters"></div>
+</div>
+
+<div id="grid"></div>
+
+<footer>
+  <span>Generated: 2026-05-12 — by Ren Murata (<a href="https://github.com/RenMurata-ops" target="_blank" rel="noopener">@RenMurata-ops</a>)</span>
+  <span>Bare Stark — <i>Made with reason.</i></span>
+</footer>
+
+</div>
+
+<script>
+const projects = [
+  // ===== memory記載・主要プロダクト =====
+  {
+    name: "Forj", cat: "ios", tagline: "朝4-7時ルーティンを脳疲労スコア連動で管理するiOSアプリ。",
+    status: "live", statusLabel: "v1.0 App Store 提出済",
+    stack: "SwiftUI / SwiftData / HealthKit / iOS 17+",
+    path: "/Users/renmurata/Forj",
+    detail: "睡眠40%+急性疲労30%+過集中補正30%の脳疲労スコア、ルーティン最大3枠同時管理、AI一括作成(Claude/LocalAI切替)、科学ナレッジベース19分野。Phase 17まで実装完了。",
+    monetize: "App Store / 個人開発フラグシップ"
+  },
+  {
+    name: "yohaku", cat: "ios", tagline: "キャラクターIP×日記/預け/AI会話。責められずに気持ちを外に置くアプリ。",
+    status: "mvp", statusLabel: "Phase 1 実装完了",
+    stack: "SwiftUI / SwiftData / Observation / xcodegen",
+    path: "/Users/renmurata/Projects/yohaku",
+    detail: "Mood picker / Deposit / Reflection / Share memo / Onboarding 5画面+StubAIService実装。ADHD対応。要件定義v1.0準拠。実機検証は iOS 26.5 platform 未インストールで保留。",
+    monetize: "将来 RevenueCat サブスク"
+  },
+  {
+    name: "U-memo", cat: "desktop", tagline: "音声→Whisper転写→Claudeで精錬・分類するAI音声メモ。",
+    status: "mvp", statusLabel: "MVP v0.1 完成",
+    stack: "Tauri v2 / React / SQLite / cpal / Whisper / Claude Haiku",
+    path: "/Users/renmurata/u-memo",
+    detail: "ParticleSphere(Three.js)UI、ProjectStore(Zustand)、cpal::Streamを unsafe Send+Sync ラップ。pnpm tauri dev で起動。"
+  },
+  {
+    name: "ns", cat: "desktop", tagline: "Whimsicalローカル版。Excalidraw無限キャンバス+Tesla風UI。",
+    status: "mvp", statusLabel: "v0.1 実装済",
+    stack: "Tauri v2 / React 19 / Excalidraw v0.18 (MIT)",
+    path: "/Users/renmurata/Desktop/ns",
+    detail: "テンプレ集 / Tab連鎖 / マインドマップ自動配置 / サムネビュー / 複数ウィンドウ。tldraw $6k/年回避のためExcalidraw採用。"
+  },
+  {
+    name: "ns-period", cat: "desktop", tagline: "Loom型録画+LMS+情報商材販売プラットフォーム。",
+    status: "live", statusLabel: "Phase F (PayPal) 完了",
+    stack: "Tauri v2 / ffmpeg AVFoundation / CF Workers / D1 / R2 / Pages",
+    path: "/Users/renmurata/Projects/ns-period",
+    detail: "ffmpeg HWエンコ、HMAC-SHA256視聴トークン、Range R2ストリーミング、複数シリーズ束ねパッケージ機能。Brain的個人プラットフォーム化が最終ゴール。"
+  },
+  {
+    name: "Oblivion", cat: "desktop", tagline: "ローカルファースト HTML/Markdown ナレッジワークスペース。",
+    status: "dev", statusLabel: "進行中 (2026-05時点)",
+    stack: "Tauri 2.x / React 19 / Zustand / Tiptap / Monaco / Mermaid",
+    path: "/Users/renmurata/Downloads/oblivion",
+    detail: '"You forget. It remembers." を哲学に autosave + タイトル自動推論 + CLI連携。`oblivion send <slug>` で Claude Code 用プロンプトを生成。'
+  },
+  {
+    name: "Nimbus", cat: "desktop", tagline: "Claude Code 出力をローカルTTSで読み上げるフローティングピル。",
+    status: "live", statusLabel: "v0.1 稼働中",
+    stack: "SwiftUI / AppKit / Kokoro TTS / AVAudioPlayer",
+    path: "/Users/renmurata/nimbus",
+    detail: "画面下端ピル常時表示、波形アニメ、声色5種切替、CGEventTapでEnter横取り送信自動化。コードブロック/URL自動削除で読上品質UP。port :8789。"
+  },
+  {
+    name: "ClaudeBar", cat: "desktop", tagline: "Claude Max 20× の使用量3軸を menubar に常時表示。",
+    status: "live", statusLabel: "v0.1 稼働中",
+    stack: "SwiftUI / MenuBarExtra / macOS 14+",
+    path: "/Users/renmurata/Projects/claude-bar",
+    detail: "60秒ポーリング+Keychain認証+ccusage7日サマリ統合。Dock非表示、AppIcon 3本バー、70/80/90%で段階アラート、401自動再認証。"
+  },
+  {
+    name: "Lair (レア)", cat: "web", tagline: "構想を喋ると Claude API が3層構造に自動展開する事業構想ツール。",
+    status: "mvp", statusLabel: "Phase 1 MVP コード完成",
+    stack: "Vite / React / Hono on CF Workers / D1 / Tailwind v4",
+    path: "/Users/renmurata/lair",
+    detail: "ゴール→背骨6ブロック→魚骨タスクの3層強制+Whyドリル(なぜなぜ分析5段)。Lair⇄Forge互換仕様v1.0実装済。料金 Free/Pro/Team(月150-600回)。"
+  },
+  {
+    name: "VoiceLink", cat: "web", tagline: "Threads発信者向けブラウザ完結ライブ音声ルーム。",
+    status: "concept", statusLabel: "9日間開発計画確定",
+    stack: "Preact / LiveKit / CF Workers / D1 / R2 / Pages",
+    path: "/Users/renmurata/voicelink",
+    detail: "URLタップ→ニックネーム→参加の3ステップ、DL不要。OTP認証、Data Channelコメント、5種リアクション、録音→mp3/mp4。",
+    monetize: "Laputaコミュニティから先行利用権確保"
+  },
+  {
+    name: "subsidy-intel", cat: "web", tagline: "全官公庁80+ソースから補助金を先回り検知するB2B SaaS。",
+    status: "live", statusLabel: "全機能実装済",
+    stack: "Next.js 15 / SQLite / Claude CLI subprocess / Playwright / pdf-parse",
+    path: "/Users/renmurata/subsidy-intel",
+    detail: "47都道府県+政令市20+省庁8を汎用クローラ。Playwright/PDF/DDGフォールバック、グローバル重複マージ、制度種別自動分類、4プランPayPal、Slack/Teams連携、日次パーソナライズ配信。"
+  },
+  {
+    name: "signull00 — アイデア発想辞書", cat: "web", tagline: "辞書¥4,980+OTO動画¥9,820のデジタル商材販売基盤。",
+    status: "live", statusLabel: "2026-04-23 リリース",
+    stack: "CF Pages+Functions / D1 / R2 / Square / Resend",
+    path: "/Users/renmurata/launch-2026-04/idea-dictionary",
+    detail: "Square決済、PDF個別透かし、動画Stream、管理画面でトークン再発行・自動メール。signull00.barestark.com。"
+  },
+  {
+    name: "Soarias", cat: "desktop", tagline: "プロンプト→SwiftUI→App Store提出を一気通貫するデスクトップ。",
+    status: "concept", statusLabel: "戦略策定完了",
+    stack: "Tauri v2 / Claude Code / fastlane / ASC API",
+    detail: "Forj制作プロセスをプレイブック化→skill化→汎用化。Tauri(UI)→Claude Code(頭脳)→Xcode/fastlane(手足)構成。$79買い切り、海外向け先行、soarias.com取得済。",
+    monetize: "$79 買い切り / Square日本"
+  },
+  {
+    name: "Bare Stark チームサイト", cat: "lp", tagline: "Forj/Lair/VoiceLink等を載せるチームコーポレートサイト。",
+    status: "live", statusLabel: "barestark.com 公開中",
+    stack: "単一HTML / Three.js / Cloudflare Pages",
+    path: "/Users/renmurata/barestark-site",
+    detail: '"Made with reason" キャッチ。ワイヤーフレーム四面体、星座、数学定数(ln II / φ)、紙色フィロソフィ(#e8e8e4)、手書き風ティッカー。'
+  },
+  {
+    name: "Laputa LP", cat: "lp", tagline: "しぐなる×かもねぎ共同主催コミュニティLP。¥39,800買い切り50名。",
+    status: "live", statusLabel: "構築完了",
+    stack: "CF Pages / 静的HTML / Tailwind / PayPal",
+    path: "/Users/renmurata/laputa-lp",
+    detail: "外貨稼ぎ・マーケ戦略講座・セミナーアーカイブ・VoiceLink先行利用権。紙面設計+ゴールド+グラフ用紙テクスチャ。煽り文・グラデ・カード積み禁止。",
+    monetize: "¥39,800 × 50名 = ¥1.99M"
+  },
+  {
+    name: "The Rosary FC", cat: "concept", tagline: "宗教カラオケ字幕YouTubeチャネルのFC展開。",
+    status: "concept", statusLabel: "FCモデル決定",
+    stack: "YouTube / FCノウハウパッケージ",
+    detail: "カトリック西/葡語、イスラム英語など8市場想定。加盟料20-100万円、収益分配30/70のハイブリッドFC型。",
+    monetize: "加盟料 + 30%収益シェア"
+  },
+  {
+    name: "潜在意識銀行", cat: "concept", tagline: "三菱UFJ質感の架空バンキング。共同幻想実験。",
+    status: "concept", statusLabel: "概要v1.0確定",
+    stack: "(未定)",
+    detail: "毎日¥200kログボ+タスク+金利+資産購入。リアル税制準拠、知人間送金¥220/¥880。隠しPBステージ(総資産¥1億&180連続&30取引で黒金UI・金利2倍)。7日¥100k〜1000日¥100Mマイルストーン。"
+  },
+  {
+    name: "Zero-to-Revenue", cat: "tool", tagline: "ゼロスタート14日で売上を立てる並行事業プレイブック。",
+    status: "live", statusLabel: "全素材完成",
+    stack: "Node.js / Claude API / Canva",
+    path: "/Users/renmurata/zero-to-revenue",
+    detail: "ココナラ3商品(AI分析¥19.8k/LP¥29.8k/自動化¥9.8k)+Brain情報商材¥3.98k(アフィ50%)。6エージェント構築、約12万字26ファイル、KPIダッシュボード。",
+    monetize: "14日で10-50万円想定"
+  },
+  {
+    name: "Threads Targeting Atlas", cat: "tool", tagline: "Threads日本語圏の単語×属性マッピング辞書。",
+    status: "concept", statusLabel: "設計完了",
+    stack: "Apify SDK / 複数クローラ",
+    detail: "8カテゴリ×5アカウント=40件シード、3ヶ月毎+緊急トリガーで更新。複数アカ並行運用＋クライアント案件のための汎用辞書化が資産性重視。"
+  },
+  {
+    name: "n8n セルフホスト", cat: "tool", tagline: "Mac常駐n8n+cloudflared tunnel。",
+    status: "live", statusLabel: "運用中",
+    stack: "n8n / cloudflared / launchd",
+    path: "~/.n8n",
+    detail: "n8n.multi-n8n.org → localhost:5678。launchd com.renmurata.n8n で自動復旧、Docker不使用。"
+  },
+  {
+    name: "Claude Code TTS", cat: "tool", tagline: "Claude Code応答をローカルKokoro TTSで読み上げ。",
+    status: "live", statusLabel: "運用中",
+    stack: "Stop hook / Kokoro TTS / Python 3.11",
+    path: "~/.claude",
+    detail: "port 8787、jf_alpha声、/tts-on /tts-off トグル。Kokoro→sayフォールバック。レイテンシ ~1秒、API課金ゼロ。"
+  },
+
+  // ===== 実体ディレクトリ・追加発見プロダクト =====
+  {
+    name: "solo-empire", cat: "web", tagline: "ソロ起業家向けAI事業実行OS。低認知負荷フロー型キャンバス。",
+    status: "dev", statusLabel: "本格開発中",
+    stack: "Next.js 16 / CF Workers / D1 / R2 / KV / OpenAI / Stripe / Resend",
+    path: "/Users/renmurata/solo-empire",
+    detail: "戦略→オファー→LP→自動化→配信→会計を一括管理。AGENTS.md+CLAUDE.mdガイド有。OpenNextアダプタでCloudflareフルスタック。"
+  },
+  {
+    name: "spirituals-diagnosis", cat: "web", tagline: "魂のキャパシティ診断ツール。10秒+3分詳細(4軸×5問)。",
+    status: "live", statusLabel: "本番デプロイ済",
+    stack: "Next.js 16 / Supabase / Claude API / Resend / Playwright",
+    path: "/Users/renmurata/spirituals-diagnosis",
+    detail: "Claude APIで個別レポート生成、Resendでメール配信。Desktop版(spirituals)はFramer Motion追加の改良版。"
+  },
+  {
+    name: "xlo-system-ver2.0", cat: "web", tagline: "X複数アカウント管理・自動化プラットフォーム。",
+    status: "live", statusLabel: "本番デプロイ済",
+    stack: "Next.js 15 / Supabase / Edge Functions (Deno) / Vercel",
+    path: "/Users/renmurata/xlo-system-ver2.0",
+    detail: "投稿・ループ・エンゲージメント自動化・DM自動化・プロキシ統合・実行キュー搭載。"
+  },
+  {
+    name: "optin-asp", cat: "web", tagline: "オプトインアフィリエイト管理SaaS。",
+    status: "live", statusLabel: "本番運用",
+    stack: "Next.js 14 / Supabase (PG) / Vercel",
+    path: "/Users/renmurata/optin-asp",
+    detail: "案件管理、アフィリエイトリンク生成、クリックトラッキング、管理画面。RLS+Service Role Keyで安全化。MAINTENANCE.md整備済。"
+  },
+  {
+    name: "nudge-ai", cat: "web", tagline: "LINE Botプラットフォーム+管理ダッシュボード。",
+    status: "dev", statusLabel: "デプロイ済 / Login未完成",
+    stack: "CF Workers / D1 / KV / Next.js Pages / LINE Messaging+Login",
+    path: "/Users/renmurata/nudge-ai",
+    detail: "LINE Botからの会話＋ログイン+Web管理。LINE Loginチャネル未セットアップ。"
+  },
+  {
+    name: "barestark (診断ツール)", cat: "web", tagline: "Barestark診断ツールフロントエンド。",
+    status: "dev", statusLabel: "実装中",
+    stack: "React 19 / Vite / Tailwind / CF Workers (Wrangler)",
+    path: "/Users/renmurata/barestark",
+    detail: "PDF/画像エクスポート(html2canvas, jspdf)、CF Workersデプロイ対応。barestark-site(LP)とは別物。"
+  },
+  {
+    name: "agent-factory-studio", cat: "web", tagline: "エージェント/ワークフロー管理スタジオ。",
+    status: "dev", statusLabel: "実装中",
+    stack: "Next.js 15 / Prisma / Supabase / BullMQ / Redis / NextAuth",
+    path: "/Users/renmurata/agent-factory-studio",
+    detail: "Prismaスキーマ管理、BullMQでジョブキュー、NextAuth+Prismaアダプタ認証。"
+  },
+  {
+    name: "cc-wf-studio", cat: "tool", tagline: "VSCode拡張：Claude Codeワークフロー視覚エディタ。",
+    status: "dev", statusLabel: "v3.12.0 継続開発中",
+    stack: "TypeScript 5.3 / React 18 / Vite / Biome",
+    path: "/Users/renmurata/cc-wf-studio",
+    detail: "自然言語→ワークフローJSON変換、MCP/Slack連携、semantic releaseで自動デプロイ。"
+  },
+  {
+    name: "forge", cat: "desktop", tagline: "ノード図ベースのワークフロー管理デスクトップアプリ。",
+    status: "dev", statusLabel: "v0.1.0 scaffold段階",
+    stack: "Tauri 2 / React 18 / TS / Tailwind / XyFlow",
+    path: "/Users/renmurata/forge",
+    detail: "Lair⇄Forge互換仕様(SPEC-forge-interop-v1)の受け側。Lairからエクスポートされた事業構想を解釈してLP/商品ページ生成予定。"
+  },
+  {
+    name: "n8n-auto-post-system", cat: "tool", tagline: "知識蓄積型・X自動投稿n8nワークフロー。",
+    status: "dev", statusLabel: "2バージョン実装中",
+    stack: "n8n / Claude API / Perplexity API / Google Sheets / X API",
+    path: "/Users/renmurata/n8n-auto-post-system",
+    detail: "理論→ドラフト→最新研究検索→根拠蓄積→X投稿の全自動フロー。実行ごとに知識蓄積。AI専用ノード版/HTTP Request版の2系統。"
+  },
+  {
+    name: "breathing-kekkai", cat: "desktop", tagline: "全ディスプレイ流体スクリーンセーバー (Weightless Fluid)。",
+    status: "live", statusLabel: "完成 / .app生成済",
+    stack: "Electron / Canvas / Web Audio",
+    path: "/Users/renmurata/breathing-kekkai",
+    detail: "黒背景フルスクリーン、流体概念体アニメ、マイク入力で反応。"
+  },
+  {
+    name: "fluid-waitress-screens", cat: "desktop", tagline: "breathing-kekkai系列、複数ディスプレイ対応スクリーンセーバー。",
+    status: "live", statusLabel: "実装済",
+    stack: "Electron / Canvas",
+    path: "/Users/renmurata/fluid-waitress-screens",
+    detail: "複数ディスプレイ対応、マイク入力オプション。"
+  },
+  {
+    name: "buffer-jp-extension", cat: "chrome", tagline: "Buffer UIを日本語化するChrome拡張。",
+    status: "live", statusLabel: "v2.0.0 完成",
+    stack: "Chrome Extension MV3 / JavaScript",
+    path: "/Users/renmurata/buffer-jp-extension",
+    detail: "content_scriptsで日本語化を注入。"
+  },
+  {
+    name: "claudecode-discord-bot", cat: "tool", tagline: "Claude CodeとDiscordの統合ボット。",
+    status: "dev", statusLabel: "情報不足",
+    stack: "Node.js",
+    path: "/Users/renmurata/claudecode-discord-bot",
+    detail: "Discord経由でClaude Codeを呼び出すボット。詳細README未整備。"
+  },
+  {
+    name: "sakuyomi-novels", cat: "ios", tagline: "Expo製クロスプラットフォーム小説アプリ。",
+    status: "dev", statusLabel: "v1.0.0 初期段階",
+    stack: "Expo 54 / React 19 / RN 0.81 / TypeScript",
+    path: "/Users/renmurata/sakuyomi-novels",
+    detail: "iOS/Android/Web対応モバイルアプリ。react-navigation。"
+  },
+  {
+    name: "threads-manager", cat: "web", tagline: "Threadsアカウント管理ツール。",
+    status: "scaffold", statusLabel: "初期段階",
+    stack: "Next.js 16.2 / React 19 / Zustand / Tailwind",
+    path: "/Users/renmurata/threads-manager",
+    detail: "シンプルUI、UUIDベース管理。"
+  },
+  {
+    name: "kishinkai-lp-01", cat: "lp", tagline: "鬼神會VOL.01セミナーLP。",
+    status: "live", statusLabel: "本番運用",
+    stack: "HTML / CSS / JavaScript",
+    path: "/Users/renmurata/kishinkai-lp-01",
+    detail: "8部の講座内容、講師プロフィール、¥30,000初回限定価格。Zoom開催+アーカイブ。",
+    monetize: "¥30,000 セミナー"
+  },
+  {
+    name: "kishinkai-pictogram", cat: "lp", tagline: "鬼神會のピクトグラム/ロゴデザイン3パターン。",
+    status: "live", statusLabel: "完成",
+    stack: "SVG",
+    path: "/Users/renmurata/kishinkai-pictogram",
+    detail: "pattern_a/b/c.svgの3パターンのデザインアセット。"
+  },
+  {
+    name: "yohaku-concept", cat: "lp", tagline: "yohakuアプリのコンセプト紹介LP。",
+    status: "live", statusLabel: "Vercelデプロイ",
+    stack: "HTML / CSS / JS",
+    path: "/Users/renmurata/yohaku-concept",
+    detail: "index.html+script.js+style.cssの軽量LP。"
+  },
+  {
+    name: "forj-privacy", cat: "lp", tagline: "Forj iOSアプリのプライバシーポリシー。",
+    status: "live", statusLabel: "GitHub Pages公開",
+    stack: "HTML / Static Site",
+    path: "/Users/renmurata/forj-privacy",
+    detail: "Forj v1.0 App Store提出に必要なプライバシーポリシー静的サイト。"
+  },
+  {
+    name: "bank-ui-demo", cat: "ios", tagline: "Web制作講座の注意喚起用ダミー銀行UI。",
+    status: "live", statusLabel: "完成",
+    stack: "SwiftUI",
+    path: "/Users/renmurata/bank-ui-demo",
+    detail: "全画面に透かし表示。公開禁止・講座内演習限定。SwiftUIで実装。"
+  },
+  {
+    name: "nevermiss", cat: "web", tagline: "Web/Desktop/Mobile対応のmonorepoアプリ。",
+    status: "scaffold", statusLabel: "v0.1.0 初期",
+    stack: "TS / React 18 / npm workspaces / Supabase",
+    path: "/Users/renmurata/nevermiss",
+    detail: "packages/core, ui, supabaseを共有するモノレポ。Node 18+。"
+  },
+  {
+    name: "ai-usecase-collection", cat: "tool", tagline: "AIユースケース収集スクリプト+HTMLインデックス。",
+    status: "dev", statusLabel: "実装中",
+    stack: "Python / CSV / HTML",
+    path: "/Users/renmurata/ai-usecase-collection",
+    detail: "YouTubeチャネル情報の収集スクリプト(collect.py/sh)+HTMLインデックス。"
+  },
+  {
+    name: "business-ideas-collection", cat: "tool", tagline: "ビジネスアイデア集の静的HTMLインデックス。",
+    status: "live", statusLabel: "ドキュメント",
+    stack: "HTML",
+    path: "/Users/renmurata/business-ideas-collection",
+    detail: "アイデア集index.htmlのみのドキュメント型コレクション。"
+  },
+  {
+    name: "corporate-site", cat: "lp", tagline: "Vite+Reactベースの企業サイト。",
+    status: "scaffold", statusLabel: "実装中",
+    stack: "React / TS / Vite / Tailwind",
+    path: "/Users/renmurata/corporate-site",
+    detail: "0.0.0.0:4321起動、開発用設定済み。"
+  },
+  {
+    name: "antitask-ai", cat: "scaffold", tagline: "Next.js初期テンプレート(未着手)。",
+    status: "scaffold", statusLabel: "scaffold",
+    stack: "Next.js / TypeScript",
+    path: "/Users/renmurata/antitask-ai",
+    detail: "create-next-app生成のボイラープレート。"
+  },
+  {
+    name: "notion-dashboard", cat: "scaffold", tagline: "Next.js初期テンプレート(未着手)。",
+    status: "scaffold", statusLabel: "scaffold",
+    stack: "Next.js",
+    path: "/Users/renmurata/notion-dashboard",
+    detail: "create-next-appベースのscaffold。"
+  },
+  {
+    name: "solo-empire-scaffold", cat: "scaffold", tagline: "solo-empire の Cloudflare 用初期 scaffold。",
+    status: "scaffold", statusLabel: "テンプレート",
+    stack: "Next.js 16 / OpenNext / Tailwind",
+    path: "/Users/renmurata/solo-empire-scaffold",
+    detail: "OpenNextアダプタでCloudflare Workersへデプロイするボイラープレート。"
+  },
+  {
+    name: "akubi", cat: "scaffold", tagline: "プロジェクト名のみ、内容不明。",
+    status: "scaffold", statusLabel: "空 or ドキュメント",
+    stack: "(不明)",
+    path: "/Users/renmurata/akubi",
+    detail: "README.md/package.json見当たらず。"
+  },
+  {
+    name: "jpki", cat: "scaffold", tagline: "jpki.dc_listファイルのみ、詳細不明。",
+    status: "scaffold", statusLabel: "空",
+    stack: "(不明)",
+    path: "/Users/renmurata/jpki",
+    detail: "ディレクトリほぼ空。"
+  },
+  {
+    name: "knowledge-synapse", cat: "scaffold", tagline: "詳細不明 (構造のみ確認)。",
+    status: "scaffold", statusLabel: "不明",
+    stack: "(不明)",
+    path: "/Users/renmurata/knowledge-synapse",
+    detail: "ディレクトリ構造のみ確認、READMEなし。"
+  },
+  {
+    name: "catholic-prayer-video", cat: "scaffold", tagline: "Desktop配下、空ディレクトリ。",
+    status: "scaffold", statusLabel: "空",
+    stack: "(不明)",
+    path: "/Users/renmurata/Desktop/catholic-prayer-video",
+    detail: "READMEなし、詳細不明。The Rosary 関連と推測。"
+  },
+  {
+    name: "spirituals-mvp", cat: "scaffold", tagline: "spirituals シリーズのMVP残骸。",
+    status: "scaffold", statusLabel: "空 or scaffold",
+    stack: "(不明)",
+    path: "/Users/renmurata/Desktop/spirituals-mvp",
+    detail: "ディレクトリ最小限。本体はspirituals-diagnosisへ移行済と推測。"
+  },
+  {
+    name: "Lair⇄Forge 互換仕様", cat: "concept", tagline: "事業構想を Forge が解釈する JSON 仕様 v1.0。",
+    status: "live", statusLabel: "v1.0 確定 / Lair側実装済",
+    stack: "JSON / TypeScript",
+    path: "/Users/renmurata/lair/SPEC-forge-interop-v1.md",
+    detail: "page_type自動推定、KPI抽出、role推定、検証ロジック完備。Lair→Forge エクスポート完了 (2026-04-30)。"
+  }
+];
+
+const CATS = [
+  { id: "all",      label: "All" },
+  { id: "ios",      label: "iOS / Mobile" },
+  { id: "desktop",  label: "Desktop" },
+  { id: "web",      label: "Web / SaaS" },
+  { id: "lp",       label: "LP / Static" },
+  { id: "tool",     label: "Tool / Infra" },
+  { id: "chrome",   label: "Chrome Ext" },
+  { id: "concept",  label: "Concept" },
+  { id: "scaffold", label: "Scaffold" }
+];
+
+const state = { cat: "all", q: "" };
+
+function catCount(id) {
+  return id === "all" ? projects.length : projects.filter(p => p.cat === id).length;
+}
+
+function renderFilters() {
+  const root = document.getElementById("filters");
+  root.innerHTML = "";
+  for (const c of CATS) {
+    const btn = document.createElement("button");
+    btn.className = "filter-btn" + (state.cat === c.id ? " active" : "");
+    btn.innerHTML = c.label + ' <span class="filter-count">' + catCount(c.id) + '</span>';
+    btn.onclick = () => { state.cat = c.id; render(); };
+    root.appendChild(btn);
+  }
+  const search = document.createElement("input");
+  search.className = "search";
+  search.placeholder = "Search (名前・技術・概要)";
+  search.value = state.q;
+  search.oninput = (e) => { state.q = e.target.value.toLowerCase(); renderGrid(); };
+  root.appendChild(search);
+}
+
+function statusClass(s) {
+  return {
+    live: "status-live",
+    dev: "status-dev",
+    mvp: "status-mvp",
+    concept: "status-concept",
+    scaffold: "status-scaffold"
+  }[s] || "status-scaffold";
+}
+
+function catLabel(id) { return (CATS.find(c => c.id === id) || {}).label || id; }
+
+function renderGrid() {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  const filtered = projects.filter(p => {
+    if (state.cat !== "all" && p.cat !== state.cat) return false;
+    if (state.q) {
+      const blob = [p.name, p.tagline, p.detail, p.stack, p.path, p.monetize].join(" ").toLowerCase();
+      if (!blob.includes(state.q)) return false;
+    }
+    return true;
+  });
+  if (filtered.length === 0) {
+    const e = document.createElement("div");
+    e.className = "empty";
+    e.textContent = "該当するプロジェクトが見つかりませんでした。";
+    grid.appendChild(e);
+    return;
+  }
+  const wrap = document.createElement("div");
+  wrap.className = "grid";
+  for (const p of filtered) {
+    const card = document.createElement("div");
+    card.className = "card";
+    let html = '';
+    html += '<div class="card-head">';
+    html += '  <div class="card-name">' + escapeHtml(p.name) + '</div>';
+    html += '  <span class="card-tag cat-' + p.cat + '">' + catLabel(p.cat) + '</span>';
+    html += '</div>';
+    html += '<div class="card-tagline">' + escapeHtml(p.tagline) + '</div>';
+    if (p.detail) {
+      html += '<div style="font-size:13px;color:#c5c8cf;margin-bottom:10px;">' + escapeHtml(p.detail) + '</div>';
+    }
+    html += '<div class="card-meta">';
+    html += '  <div class="meta-row"><span class="meta-key">Status</span><span class="meta-val"><span class="status-dot ' + statusClass(p.status) + '"></span>' + escapeHtml(p.statusLabel) + '</span></div>';
+    html += '  <div class="meta-row"><span class="meta-key">Stack</span><span class="meta-val">' + escapeHtml(p.stack) + '</span></div>';
+    if (p.path) {
+      html += '  <div class="meta-row"><span class="meta-key">Path</span><span class="meta-val path">' + escapeHtml(p.path) + '</span></div>';
+    }
+    if (p.monetize) {
+      html += '  <div class="meta-row"><span class="meta-key">$</span><span class="meta-val">' + escapeHtml(p.monetize) + '</span></div>';
+    }
+    html += '</div>';
+    card.innerHTML = html;
+    wrap.appendChild(card);
+  }
+  grid.appendChild(wrap);
+}
+
+function renderStats() {
+  const live = projects.filter(p => p.status === "live").length;
+  const mvp = projects.filter(p => p.status === "mvp").length;
+  const dev = projects.filter(p => p.status === "dev").length;
+  const concept = projects.filter(p => p.status === "concept").length;
+  const scaffold = projects.filter(p => p.status === "scaffold").length;
+  document.getElementById("stats").innerHTML =
+    '<div><b>' + projects.length + '</b> projects total</div>' +
+    '<div><span class="status-dot status-live"></span><b>' + live + '</b> live / shipped</div>' +
+    '<div><span class="status-dot status-mvp"></span><b>' + mvp + '</b> MVP</div>' +
+    '<div><span class="status-dot status-dev"></span><b>' + dev + '</b> in development</div>' +
+    '<div><span class="status-dot status-concept"></span><b>' + concept + '</b> concept</div>' +
+    '<div><span class="status-dot status-scaffold"></span><b>' + scaffold + '</b> scaffold</div>';
+}
+
+function escapeHtml(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function render() { renderFilters(); renderGrid(); }
+renderStats();
+render();
+</script>
+</body>
+</html>
