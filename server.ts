@@ -101,22 +101,27 @@ function shellEscape(s: string): string {
 }
 
 async function spawnGhostty(workingDir: string, command: string): Promise<void> {
-  // write a temp wrapper so we can run multi-token commands reliably via Ghostty -e
+  // Write a temp wrapper so multi-token commands work reliably via Ghostty -e.
+  // NOTE: use `open -a` (no -n). The `-n` flag forces a fresh Ghostty instance,
+  // which macOS then "restores" with all previously-open windows — so a single
+  // click can spawn 9-10 windows. Without `-n`, the running Ghostty receives
+  // the args and opens exactly one new window.
   const dir = await mkdtemp(path.join(tmpdir(), "ccpi-"));
   const wrapper = path.join(dir, "run.sh");
   const body = `#!/bin/bash
 cd ${shellEscape(workingDir)}
 ${command}
-exec_status=$?
+status=$?
 echo
-echo "[ccpi] (exited $exec_status) — Enterで閉じる"
+echo "[ccpi] 終了 (exit $status) — Enterで閉じる"
 read -r _
 `;
   await writeFile(wrapper, body, { mode: 0o755 });
-  // open -na Ghostty.app --args -e /tmp/.../run.sh
-  spawn("open", ["-na", "Ghostty.app", "--args", "--working-directory=" + workingDir, "-e", wrapper], {
-    detached: true, stdio: "ignore"
-  }).unref();
+
+  // Primary: attach to running Ghostty, ask it to open one new window.
+  const args = ["-a", "Ghostty.app", "--args", "--working-directory=" + workingDir, "-e", wrapper];
+  const child = spawn("open", args, { detached: true, stdio: "ignore" });
+  child.unref();
 }
 
 async function moveToTrash(targetPath: string): Promise<{ ok: boolean; err?: string }> {
