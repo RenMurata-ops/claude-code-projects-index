@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Session Brief — Morning Review (2026.05.13)</title>
+<meta name="description" content="iMac 上で稼働中の Claude Code セッション（Ghostty ターミナル）の朝レビュー用ブリーフィング。" />
+<style>
+  :root {
+    --paper:     #f4f0e6;
+    --paper-2:   #ece6d6;
+    --card:      #fbf8f0;
+    --ink:       #14130e;
+    --ink-2:     #25241e;
+    --ink-soft:  #4d4a42;
+    --ink-mute:  #7e7a70;
+    --rule:      #bdb39a;
+    --rule-soft: #cfc7b1;
+    --accent:    #8a2516;
+    --accent-2:  #b08a3a;
+    --live:      #295434;
+    --warn:      #7a4012;
+    --danger:    #6b1818;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family:
+      "Inter", -apple-system, BlinkMacSystemFont,
+      "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Noto Sans JP",
+      system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    font-feature-settings: "palt" 1, "tnum" 1;
+    -webkit-font-smoothing: antialiased;
+  }
+  .serif {
+    font-family: "Times New Roman", "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  }
+  .mono {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-feature-settings: "tnum" 1;
+  }
+  a { color: var(--ink); border-bottom: 1px solid var(--ink-mute); text-decoration: none; }
+  a:hover { border-bottom-color: var(--ink); }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 64px 48px 120px; }
+
+  /* Masthead */
+  header.mast {
+    border-top: 3px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 22px 0 28px;
+    margin-bottom: 44px;
+  }
+  .mast .colophon {
+    display: flex; flex-wrap: wrap; gap: 18px;
+    font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 500;
+  }
+  .mast .colophon .sep { color: var(--ink-mute); font-weight: 400; }
+  .mast h1 {
+    margin: 22px 0 0;
+    font-size: clamp(36px, 4.4vw, 54px);
+    line-height: 1.1;
+    font-weight: 400;
+    letter-spacing: -0.012em;
+  }
+  .mast .deck {
+    font-size: 15px; color: var(--ink-2);
+    margin-top: 18px; max-width: 680px; line-height: 1.7;
+  }
+
+  /* Summary band */
+  .band {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    background: var(--card);
+    margin-bottom: 40px;
+  }
+  .band .cell {
+    padding: 20px 22px;
+    border-right: 1px solid var(--rule-soft);
+  }
+  .band .cell:last-child { border-right: none; }
+  .band .lbl {
+    font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 600;
+  }
+  .band .num {
+    margin-top: 10px;
+    font-size: 36px; font-weight: 400; line-height: 1;
+    letter-spacing: -0.012em;
+  }
+  .band .num.live { color: var(--accent); }
+
+  /* Section heading */
+  .sec-head {
+    display: flex; align-items: baseline; gap: 20px;
+    border-top: 1px solid var(--ink);
+    padding: 28px 0 14px;
+    margin: 48px 0 0;
+  }
+  .sec-head .sec-no {
+    font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 600;
+  }
+  .sec-head .sec-title {
+    font-size: 22px; font-weight: 500; letter-spacing: -0.005em;
+  }
+  .sec-head .sec-cap {
+    margin-left: auto;
+    font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 600;
+  }
+
+  /* Session entry */
+  .session {
+    background: var(--card);
+    border-bottom: 1px solid var(--rule-soft);
+    padding: 28px 30px 24px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .session + .session { border-top: 1px solid var(--rule-soft); }
+  .session-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: baseline;
+    gap: 18px;
+    margin-bottom: 4px;
+  }
+  .session-name {
+    font-size: 24px; font-weight: 500; letter-spacing: -0.008em;
+    line-height: 1.2;
+  }
+  .session-state {
+    font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+    font-weight: 700;
+    padding: 3px 10px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+  .state-running     { color: var(--accent); border-color: var(--accent); background: rgba(138, 37, 22, 0.06); }
+  .state-user-waiting{ color: var(--live);   border-color: var(--live);   background: rgba(41, 84, 52, 0.06); }
+  .state-idle        { color: var(--ink-mute); border-color: var(--ink-mute); }
+  .state-stuck       { color: var(--danger); border-color: var(--danger); background: rgba(107, 24, 24, 0.06); }
+
+  .session-topic {
+    font-size: 15px; color: var(--ink); margin-top: 6px;
+    line-height: 1.65;
+  }
+
+  .meta-line {
+    display: flex; flex-wrap: wrap; gap: 16px 24px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule-soft);
+    font-size: 12.5px;
+  }
+  .meta-line dt {
+    display: inline; font-size: 10px; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--ink-soft); font-weight: 600;
+    margin-right: 6px;
+  }
+  .meta-line dd {
+    display: inline; margin: 0;
+    color: var(--ink-2);
+  }
+  .meta-line dd.mono { font-size: 12px; color: var(--ink-2); }
+  .meta-line .pair { white-space: nowrap; }
+  .meta-line .pair.path { white-space: normal; }
+
+  .convo {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    column-gap: 16px;
+    row-gap: 18px;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+  }
+  .convo-k {
+    font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--ink-soft); font-weight: 700;
+    padding-top: 3px;
+  }
+  .convo-v {
+    font-size: 13.5px; color: var(--ink-2); line-height: 1.75;
+  }
+  .convo-v.assistant { color: var(--ink); }
+  .convo-v code {
+    background: var(--paper-2);
+    padding: 1px 5px;
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 12px;
+  }
+
+  .reason {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--rule);
+    font-size: 12px;
+    color: var(--ink-soft);
+    letter-spacing: .03em;
+  }
+  .reason .lbl {
+    color: var(--ink); font-weight: 600;
+    letter-spacing: .14em; text-transform: uppercase;
+    font-size: 10px;
+    margin-right: 8px;
+  }
+
+  /* Footer */
+  footer.colophon {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid var(--ink);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    color: var(--ink-soft);
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  footer.colophon .motto {
+    text-align: center; font-style: italic;
+    text-transform: none; letter-spacing: .02em; color: var(--ink-2);
+  }
+  footer.colophon .credit { text-align: right; }
+
+  @media (max-width: 720px) {
+    .wrap { padding: 36px 22px 64px; }
+    .band { grid-template-columns: repeat(2, 1fr); }
+    .session { padding: 22px 22px 18px; }
+    .session-head { grid-template-columns: 1fr; }
+    .convo { grid-template-columns: 1fr; gap: 6px; }
+    .convo-k { padding-top: 0; }
+    footer.colophon { grid-template-columns: 1fr; text-align: left; }
+    footer.colophon .motto, footer.colophon .credit { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="mast">
+    <div class="colophon">
+      <span>Vol. I</span>
+      <span class="sep">/</span>
+      <span>Session Brief</span>
+      <span class="sep">/</span>
+      <span>Morning Review</span>
+      <span class="sep">/</span>
+      <span id="dateline">2026.05.13</span>
+    </div>
+    <h1 class="serif">11 のターミナルで、いま<br>何が止まり、何が走っているか。</h1>
+    <p class="deck">
+      iMac 上の Ghostty 経由で同時稼働している Claude Code セッションを横断し、各々のプロジェクト・最終応答時刻・話題・現状（要返答／自走中／待機）を一覧化した朝確認用のブリーフィング。優先順位は <b>要返答 → 自走中 → 待機</b> の順。
+    </p>
+  </header>
+
+  <section class="band" id="band"></section>
+
+  <section id="sectionUserWaiting"></section>
+  <section id="sectionRunning"></section>
+  <section id="sectionIdle"></section>
+
+  <footer class="colophon">
+    <span>Compiled at <span id="generatedAt"></span></span>
+    <span class="motto serif">Made with reason.</span>
+    <span class="credit">Ren Murata &nbsp;·&nbsp; Tokyo</span>
+  </footer>
+
+</div>
+
+<script>
+"use strict";
+
+const SESSIONS = [
+  {
+    project: "subsidy-intel",
+    topic: "日本に存在する補助金・助成金・給付金の全網羅 + 定期更新基盤の構築（外販ツール）",
+    state: "running",
+    stateLabel: "自走中",
+    stateReason: "並列3エージェントへ URL 収集を委任しつつ、ワーカープール構築を実行中。",
+    pid: 95070,
+    cwd: "/Users/renmurata",
+    sessionId: "891442d1-a454-4ffa-97ef-30b15f48b422",
+    lastActivity: "2026-05-13 00:41",
+    started: "2026-05-12 15:34",
+    etime: "9時間9分",
+    lastUser: "これでもまだ少ない。ローカルエージェントを複数立ち上げて効率的かつ高精度に調査して。日本に存在する全ての補助金・助成金・給付金を網羅し、定期更新できる仕組みを。外販ツールとして徹底的に。",
+    lastAssistant: "並列で3エージェントに URL 収集を依頼しつつ、私はワーカープールを構築します。"
+  },
+  {
+    project: "marketing-research（集客ベストプラクティス）",
+    topic: "現代の集客ベストプラクティスを第一原理思考で網羅した最高品質資料の作成（Downloads配下）",
+    state: "user-waiting",
+    stateLabel: "要返答",
+    stateReason: "並列タスク 7 件すべて completed 報告済。次の指示待ち。",
+    pid: 53381,
+    cwd: "/Users/renmurata",
+    sessionId: "083df1f8-2c0d-40a9-a314-a91219b6f6e0",
+    lastActivity: "2026-05-13 00:45",
+    started: "2026-05-12 16:32",
+    etime: "8時間11分",
+    lastUser: "現状の集客調査のブラッシュアップを。ローカルエージェントいくつ立ち上げても可。世界中どこを探してもこれ以上の質の資料は存在しないレベルまで、第一原理思考で。",
+    lastAssistant: "7 タスクすべて completed に更新しました。"
+  },
+  {
+    project: "Lingua Franca（事業戦略書）",
+    topic: "書籍を題材にしたコンテンツビジネスの戦略書（本棚連動・1億円逆算ロードマップ）",
+    state: "user-waiting",
+    stateLabel: "要返答",
+    stateReason: "戦略書 Part II（市場地形〜法人化／税務）を Downloads/lingua_franca_strategy.md に統合し、全 14,000 字に。次の指示待ち。",
+    pid: 44107,
+    cwd: "/Users/renmurata",
+    sessionId: "84a9c075-51ca-4eab-8ad5-936cb8453c1a",
+    lastActivity: "2026-05-13 00:44",
+    started: "2026-05-12 17:58",
+    etime: "6時間45分",
+    lastUser: "必要であれば、役割を分けたローカルエージェント等を立ち上げて調査効率／精度を上げてもらって大丈夫です。",
+    lastAssistant: "統合完了。Downloads/lingua_franca_strategy.md に Part II を追記、全体約 14,000 字。14〜28 章：市場地形・直接競合三巨頭・アライアンス 10 名・アンダーグラウンド戦術・1 億円逆算・商品ラダー・投稿テンプレ・1 年ロードマップ・稼働配分・法人化／税務まで。"
+  },
+  {
+    project: "soarias / pSEO（母艦）",
+    topic: "Soarias の pSEO 戦略 — Claude Pro × CLI で SwiftUI HOWTO 記事を大量生成し Search Console 連携",
+    state: "user-waiting",
+    stateLabel: "要返答",
+    stateReason: "サイトマップは正常（HTTP 200）。Search Console の「取得できませんでした」は登録直後の一時表示で放置で OK と回答済み。",
+    pid: 67448,
+    cwd: "/Users/renmurata/soarias/pseo",
+    sessionId: "99a5808a-e9dd-4bef-9c36-e5a8a50f06d2",
+    lastActivity: "2026-05-13 00:38",
+    started: "2026-05-11 12:50",
+    etime: "1日11時間",
+    lastUser: "（Search Console のスクリーンショット）",
+    lastAssistant: "サイトマップ自体は正常（HTTP 200、正しい XML）。問題ありません。「取得できませんでした」は Google が登録直後にまだクロールしていないだけの一時表示で、数時間〜1 日以内に自動再取得され「成功」に変わります。そのまま放置で大丈夫。"
+  },
+  {
+    project: "yohaku（iOS）",
+    topic: "yohaku iOS アプリの Phase 1 を App Store 審査提出まで完走",
+    state: "user-waiting",
+    stateLabel: "結果待ち",
+    stateReason: "fastlane submit 完了。App Store 審査の結果メール（24-48 時間）を rxe0428@icloud.com で待機中。",
+    pid: 90249,
+    cwd: "/Users/renmurata/Projects/yohaku",
+    sessionId: "63660004-8084-43d4-9cfa-4a6bae11b569",
+    lastActivity: "2026-05-13 00:37",
+    started: "2026-05-11 22:48",
+    etime: "1日1時間54分",
+    lastUser: "fastlane beta（build 3, v1.0）結果確認。TestFlight アップ成功なら fastlane meta → asc validate → fastlane submit で審査提出まで完走。",
+    lastAssistant: "完走済。fastlane meta 成功（メタデータ + スクショ 6 枚）、fastlane beta（build 3, v1.0）TestFlight Processing VALID、asc validate errors=0 / blocking=0、fastlane submit App Store 審査提出完了、コミット 46f1863 で固定。通常 24-48 時間で審査メールが rxe0428@icloud.com に届く。"
+  },
+  {
+    project: "Oblivion",
+    topic: "ローカルファースト HTML／MD ナレッジワークスペースに Finder からの Drag&Drop 対応を追加",
+    state: "user-waiting",
+    stateLabel: "要返答",
+    stateReason: "Sidebar.tsx の HMR 反映済。Finder から .md / .html をフォルダ行にドロップして動作確認するよう案内した状態。",
+    pid: 21645,
+    cwd: "/Users/renmurata/Downloads/oblivion",
+    sessionId: "778dc76f-e9e7-4461-b68d-c42084ad650f",
+    lastActivity: "2026-05-13 00:29",
+    started: "2026-05-11 02:00",
+    etime: "1日22時間",
+    lastUser: "作成したフォルダには、ドラッグ&ドロップで HTML ファイルも MD ファイルも入れられるようにしてください。",
+    lastAssistant: "Oblivion（pid 96570）正常稼働、Sidebar.tsx の HMR も反映済み。Finder から .md / .html ファイルをサイドバーのフォルダ行に直接ドロップしてみてください。"
+  },
+  {
+    project: "ns-period",
+    topic: "Loom 型録画 + LMS アプリ ns-period の新サイドナビと URL コピー UX 調整",
+    state: "user-waiting",
+    stateLabel: "要返答",
+    stateReason: "新サイドナビ「ホーム／商品／セット商品／教材／販売ページ／顧客／クーポン／売上・視聴／設定」と URL コピー欄の『コピーしました』フィードバックを実装、動作確認待ち。",
+    pid: 23428,
+    cwd: "/Users/renmurata/Projects/ns-period",
+    sessionId: "06ed7188-f540-439a-a1fe-6eec51d36eec",
+    lastActivity: "2026-05-13 00:15",
+    started: "2026-05-11 02:00",
+    etime: "1日22時間",
+    lastUser: "（resume）新サイドナビ表記とコピーフィードバックの確認。",
+    lastAssistant: "両方の app プロセスにアクセスでき、新しい方（PID 79297）が前面に出ました。新サイドナビと、各 URL コピー欄の「コピーしました」フィードバックを試してみてください。"
+  },
+  {
+    project: "first-100-users guide",
+    topic: "5 つの集客 MD を統合した『first_100_users_complete_guide.md』完全ガイドの作成",
+    state: "user-waiting",
+    stateLabel: "完成・要次手",
+    stateReason: "Downloads/first_100_users_complete_guide.md として 3 部 15 章 + 5 付録、ゼロ円 30 日 100 人プラン、Phase 戦略、Mermaid 60 点まで含めて完成。",
+    pid: 23441,
+    cwd: "/Users/renmurata/Downloads",
+    sessionId: "f5b0ecab-49f9-47e9-958b-7f3b63936fbb",
+    lastActivity: "2026-05-13 00:14",
+    started: "2026-05-11 02:00",
+    etime: "1日22時間",
+    lastUser: "（初期指示）5 つの MD から完全ガイドを統合作成。",
+    lastAssistant: "ガイドブックを Downloads/first_100_users_complete_guide.md に作成。3 部 15 章 + 5 付録、ゼロ円 30 日 100 人プラン、100 → 100,000 人 Phase 戦略、10 ケース深掘り、Mermaid 60 点 + 比較表 9 点。"
+  },
+  {
+    project: "claude-code-projects-index（このページ）",
+    topic: "iMac 内の全プロジェクト棚卸し → 稼働中ターミナル 11 個のレビュー資料生成",
+    state: "running",
+    stateLabel: "自走中",
+    stateReason: "サブエージェント（本調査）を起動して 11 セッションの状態を取得中。完了後にこの HTML を出力。",
+    pid: 66196,
+    cwd: "/Users/renmurata",
+    sessionId: "e26ab81d-2786-4b8c-b664-60fecd3866e2",
+    lastActivity: "2026-05-13 00:43",
+    started: "2026-05-12 18:25",
+    etime: "6時間17分",
+    lastUser: "とりあえずこのタスクは保留。今 iMac には Ghostty 経由で 11 個のターミナルが立ち上がっている。それぞれが何をしていて何時に何で止まっているか、明日の朝レビュー用に HTML にまとめて。",
+    lastAssistant: "9〜10 セッション確認できました。各セッションの cwd 特定 + 最終応答時刻 + 話題抽出のため、専用エージェントに調査を任せます。"
+  },
+  {
+    project: "soarias-pseo worker（cropping tool）",
+    topic: "SwiftUI HOWTO 記事の pSEO バッチワーカー — cropping tool 記事を 1 件生成",
+    state: "idle",
+    stateLabel: "待機",
+    stateReason: "1 記事の HTML 出力完了。次のバッチ row（自動投入）待ち。",
+    pid: 90115,
+    cwd: "/Users/renmurata/soarias/pseo",
+    sessionId: "fc2c05f5-bd01-45b7-b065-8071afeeef82",
+    lastActivity: "2026-05-13 00:21",
+    started: "2026-05-13 00:21",
+    etime: "22分",
+    lastUser: "{\"row\":{\"slug\":\"how-to-implement-cropping-tool\",\"category\":\"media\",\"complexity\":\"advanced\",\"key_apis\":\"UIGraphicsImageRenderer\"}}",
+    lastAssistant: "（SwiftUI cropping tool 記事の完全 HTML 出力 — soarias.com/swiftui/how-to-implement-cropping-tool/、UIGraphicsImageRenderer ベース、iOS 17+、schema.org JSON-LD 込み）"
+  },
+  {
+    project: "soarias-pseo worker（syntax highlighting）",
+    topic: "SwiftUI HOWTO 記事の pSEO バッチワーカー — syntax highlighting 記事を 1 件生成",
+    state: "idle",
+    stateLabel: "待機",
+    stateReason: "1 記事の HTML 出力完了。バッチワーカーとしての一回分が終わった状態。",
+    pid: null,
+    cwd: "/Users/renmurata/soarias/pseo",
+    sessionId: "b0adef65-66b5-4dad-a6c5-f99e5c7e0d79",
+    lastActivity: "2026-05-13 00:20",
+    started: "2026-05-13 00:20",
+    etime: "—",
+    lastUser: "{\"row\":{\"slug\":\"how-to-implement-syntax-highlighting\",\"category\":\"document\",\"complexity\":\"advanced\",\"key_apis\":\"AttributedString/Regex\"}}",
+    lastAssistant: "（SwiftUI syntax highlighting 記事の完全 HTML 出力 — AttributedString / Regex ベース、iOS 17+、schema.org JSON-LD 込み）"
+  }
+];
+
+const STATE_ORDER = { "user-waiting": 0, "running": 1, "idle": 2, "stuck": 0 };
+const STATE_SECTIONS = [
+  { id: "sectionUserWaiting", state: "user-waiting", num: "I",   title: "要返答／結果待ち", caption: "Awaiting your input" },
+  { id: "sectionRunning",     state: "running",      num: "II",  title: "自走中",          caption: "Working autonomously" },
+  { id: "sectionIdle",        state: "idle",         num: "III", title: "待機・バッチワーカー", caption: "Idle / batch worker" }
+];
+
+const ESC = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ESC[c]); }
+function pad(n, w) { return String(n).padStart(w, "0"); }
+
+function renderBand() {
+  const total = SESSIONS.length;
+  const waiting = SESSIONS.filter(s => s.state === "user-waiting" || s.state === "stuck").length;
+  const running = SESSIONS.filter(s => s.state === "running").length;
+  const idle    = SESSIONS.filter(s => s.state === "idle").length;
+  document.getElementById("band").innerHTML = `
+    <div class="cell"><div class="lbl">Total</div><div class="num mono">${pad(total, 2)}</div></div>
+    <div class="cell"><div class="lbl">要返答</div><div class="num mono live">${pad(waiting, 2)}</div></div>
+    <div class="cell"><div class="lbl">自走中</div><div class="num mono">${pad(running, 2)}</div></div>
+    <div class="cell"><div class="lbl">待機</div><div class="num mono">${pad(idle, 2)}</div></div>
+  `;
+}
+
+function renderSection(sec) {
+  const root = document.getElementById(sec.id);
+  const list = SESSIONS
+    .filter(s => s.state === sec.state)
+    .sort((a, b) => (b.lastActivity || "").localeCompare(a.lastActivity || ""));
+  if (list.length === 0) { root.innerHTML = ""; return; }
+
+  let html = `
+    <header class="sec-head">
+      <span class="sec-no mono">${esc(sec.num)}</span>
+      <h2 class="sec-title serif">${esc(sec.title)}</h2>
+      <span class="sec-cap">${esc(sec.caption)} · ${pad(list.length, 2)}</span>
+    </header>
+  `;
+  list.forEach((s, idx) => {
+    html += `
+      <article class="session">
+        <header class="session-head">
+          <h3 class="session-name serif">${esc(s.project)}</h3>
+          <span class="session-state state-${esc(s.state)}">${esc(s.stateLabel)}</span>
+        </header>
+        <div class="session-topic">${esc(s.topic)}</div>
+        <dl class="meta-line">
+          <span class="pair"><dt>Last</dt><dd class="mono">${esc(s.lastActivity)}</dd></span>
+          <span class="pair"><dt>Started</dt><dd class="mono">${esc(s.started)} (${esc(s.etime)})</dd></span>
+          ${s.pid ? `<span class="pair"><dt>PID</dt><dd class="mono">${esc(s.pid)}</dd></span>` : ""}
+          <span class="pair path"><dt>Path</dt><dd class="mono">${esc(s.cwd)}</dd></span>
+          <span class="pair"><dt>Session</dt><dd class="mono">${esc(s.sessionId.slice(0, 8))}…</dd></span>
+        </dl>
+        <dl class="convo">
+          <dt class="convo-k">User</dt>
+          <dd class="convo-v">${esc(s.lastUser)}</dd>
+          <dt class="convo-k">Assistant</dt>
+          <dd class="convo-v assistant">${esc(s.lastAssistant)}</dd>
+        </dl>
+        <div class="reason"><span class="lbl">Status</span>${esc(s.stateReason)}</div>
+      </article>
+    `;
+  });
+  root.innerHTML = html;
+}
+
+(function init() {
+  const d = new Date();
+  document.getElementById("dateline").textContent =
+    d.getFullYear() + "." + pad(d.getMonth() + 1, 2) + "." + pad(d.getDate(), 2);
+  document.getElementById("generatedAt").textContent =
+    d.getFullYear() + "." + pad(d.getMonth() + 1, 2) + "." + pad(d.getDate(), 2) +
+    " " + pad(d.getHours(), 2) + ":" + pad(d.getMinutes(), 2);
+  renderBand();
+  for (const sec of STATE_SECTIONS) renderSection(sec);
+})();
+</script>
+</body>
+</html>
