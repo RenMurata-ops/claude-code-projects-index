@@ -4,193 +4,537 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Claude Code Projects Index — Ren Murata</title>
-<meta name="description" content="Claude Code CLI で組み上げてきたアプリ・Webサービス・LP・構想の一覧。" />
+<meta name="description" content="Claude Code CLI で組み上げてきたアプリ、Webサービス、LP、構想の総覧。" />
 <style>
+  /* =========================================================
+     Editorial paper theme. Reference: Hosoo / Nakagawa Masashichi
+     Shoten / Issey Miyake monograph layouts. Warm bone paper +
+     deep ink, mincho headings, tabular figures, hairline rules.
+     ========================================================= */
   :root {
-    --bg: #0e0f12; --bg-2: #15171c; --bg-card: #181a20; --line: #25282f;
-    --text: #e8e9ec; --muted: #8b8f99; --accent: #ff6b3d; --accent-2: #f3c969;
-    --green: #7ec88a; --blue: #6aa6ff; --purple: #b48cff; --pink: #ff8cb6; --red: #ff5d6c;
+    --paper: #f3efe7;
+    --paper-2: #ebe6dc;
+    --paper-3: #e2dccf;
+    --ink: #15140f;
+    --ink-2: #2a2924;
+    --ink-soft: #6c685e;
+    --ink-mute: #97928a;
+    --rule: #d1cabb;
+    --rule-soft: #ddd6c6;
+    --accent: #9a2a18;        /* deep vermillion — used sparingly */
+    --accent-soft: #c6b990;   /* matte gold for static accents */
+    --live: #2f5d3a;
+    --warn: #8a4a14;
+    --danger: #7a1f1f;
   }
   * { box-sizing: border-box; }
   html, body {
-    margin: 0; padding: 0; background: var(--bg); color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Hiragino Sans", "Yu Gothic", system-ui, sans-serif;
-    line-height: 1.55; -webkit-font-smoothing: antialiased;
+    margin: 0; padding: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family:
+      "Inter", -apple-system, BlinkMacSystemFont,
+      "Hiragino Kaku Gothic ProN", "Yu Gothic Medium", "Noto Sans JP",
+      system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.62;
+    font-feature-settings: "palt" 1, "tnum" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 40px 24px 96px; }
-  header.intro { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 24px; }
-  .eyebrow { font-size: 12px; letter-spacing: .18em; color: var(--muted); text-transform: uppercase; }
-  .eyebrow .live-badge {
-    margin-left: 10px; display: inline-flex; align-items: center; gap: 6px;
-    padding: 2px 9px; border-radius: 999px; background: #1c2620;
-    border: 1px solid #2a402d; color: var(--green); font-size: 11px; letter-spacing: .04em;
+  .serif {
+    font-family:
+      "Times New Roman", "Hiragino Mincho ProN", "Yu Mincho",
+      "Noto Serif JP", serif;
+    font-feature-settings: "palt" 1;
   }
-  .eyebrow .live-badge .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); animation: pulse 1.4s ease-in-out infinite; }
-  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
-  h1 { font-size: 36px; line-height: 1.2; margin: 10px 0 6px; font-weight: 700; letter-spacing: -0.01em; }
-  h1 .accent { color: var(--accent); }
-  .lede { color: var(--muted); font-size: 15px; max-width: 780px; margin: 0; }
-  .stats { margin-top: 20px; display: flex; gap: 24px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
-  .stats b { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
-  .controls {
-    position: sticky; top: 0;
-    background: linear-gradient(180deg, var(--bg) 0%, var(--bg) 70%, rgba(14,15,18,0));
-    padding: 14px 0 20px; margin-bottom: 16px; z-index: 10; border-bottom: 1px solid var(--line);
+  .mono {
+    font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+    font-feature-settings: "tnum" 1;
   }
-  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-  .filter-btn {
-    background: var(--bg-2); color: var(--text); border: 1px solid var(--line);
-    padding: 7px 12px; border-radius: 999px; font-size: 13px; cursor: pointer;
-    font-family: inherit; transition: background .15s, border-color .15s;
+  a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink-mute); padding-bottom: 1px; }
+  a:hover { border-bottom-color: var(--ink); }
+
+  .wrap {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 56px 40px 96px;
   }
-  .filter-btn:hover { border-color: var(--muted); }
-  .filter-btn.active { background: var(--accent); color: #1a0e07; border-color: var(--accent); font-weight: 600; }
-  .filter-count { color: var(--muted); margin-left: 6px; font-variant-numeric: tabular-nums; }
-  .filter-btn.active .filter-count { color: #4a2c14; }
+
+  /* ---------- Masthead ---------- */
+  header.mast {
+    border-top: 2px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 18px 0 22px;
+    margin-bottom: 36px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 24px;
+  }
+  .mast .colophon {
+    display: flex; gap: 18px; flex-wrap: wrap;
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .mast .colophon .sep { color: var(--ink-mute); }
+  .mast .colophon .live {
+    display: none;
+    align-items: center; gap: 8px;
+    color: var(--live);
+    font-weight: 500;
+  }
+  .mast .colophon .live::before {
+    content: ""; display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--live);
+  }
+  .mast h1 {
+    margin: 14px 0 0;
+    font-size: clamp(34px, 4.4vw, 54px);
+    line-height: 1.05;
+    font-weight: 400;
+    letter-spacing: -0.012em;
+    color: var(--ink);
+  }
+  .mast .h1-sub {
+    font-size: 13px; color: var(--ink-soft);
+    letter-spacing: .04em;
+    margin-top: 14px;
+    max-width: 640px;
+    line-height: 1.7;
+  }
+  .mast .issue {
+    font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--ink-soft);
+    text-align: right;
+  }
+  .mast .issue .n {
+    display: block;
+    font-size: 56px; line-height: 1; color: var(--ink);
+    letter-spacing: -0.02em;
+    margin-top: 4px;
+  }
+
+  /* ---------- Tabulated summary ---------- */
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 32px;
+  }
+  .summary .cell {
+    padding: 14px 0 16px;
+    border-right: 1px solid var(--rule-soft);
+  }
+  .summary .cell:last-child { border-right: none; }
+  .summary .lbl {
+    font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .summary .num {
+    margin-top: 6px;
+    font-size: 26px; font-weight: 400; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .summary .num .of {
+    font-size: 12px; color: var(--ink-mute); margin-left: 4px;
+  }
+
+  /* ---------- Filter rail ---------- */
+  .rail {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--paper);
+    padding: 18px 0 18px;
+    margin-bottom: 28px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .rail-inner {
+    display: flex; flex-wrap: wrap; gap: 0;
+    align-items: center;
+  }
+  .rail-label {
+    font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--ink-mute);
+    margin-right: 18px;
+  }
+  .filter {
+    background: transparent;
+    border: none;
+    border-right: 1px solid var(--rule-soft);
+    color: var(--ink-soft);
+    padding: 4px 14px;
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color .15s;
+  }
+  .filter:first-of-type { padding-left: 0; }
+  .filter:last-of-type { border-right: none; }
+  .filter:hover { color: var(--ink); }
+  .filter.active { color: var(--ink); font-weight: 600; }
+  .filter .ct {
+    margin-left: 6px;
+    color: var(--ink-mute);
+    font-weight: 400;
+    font-size: 11px;
+  }
+  .filter.active .ct { color: var(--ink-soft); }
+
+  .search-wrap {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--ink);
+    padding: 2px 0;
+  }
+  .search-wrap .search-lbl {
+    font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--ink-soft);
+  }
   .search {
-    margin-left: auto; background: var(--bg-2); border: 1px solid var(--line);
-    border-radius: 8px; padding: 7px 12px; color: var(--text);
-    font-family: inherit; font-size: 13px; min-width: 220px;
+    background: transparent;
+    border: none;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 3px 0;
+    min-width: 220px;
   }
-  .search:focus { outline: none; border-color: var(--accent); }
-  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
-  .card {
-    background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px;
-    padding: 18px 18px 14px; display: flex; flex-direction: column;
-    transition: border-color .15s; position: relative;
-  }
-  .card.missing { opacity: .55; }
-  .card:hover { border-color: #3a3e47; }
-  .card.new-flash { animation: flash 1.6s ease; }
-  @keyframes flash { 0% { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(255,107,61,.18); } 100% { border-color: var(--line); box-shadow: none; } }
-  .card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
-  .card-name { font-size: 17px; font-weight: 700; letter-spacing: -0.005em; color: var(--text); }
-  .card-tag {
-    font-size: 10.5px; letter-spacing: .08em; padding: 3px 8px; border-radius: 4px;
-    text-transform: uppercase; white-space: nowrap; background: #20232a;
-    color: var(--muted); border: 1px solid var(--line);
-  }
-  .card-tag.cat-ios { color: var(--blue); border-color: #2a3344; }
-  .card-tag.cat-desktop { color: var(--purple); border-color: #322a44; }
-  .card-tag.cat-web { color: var(--green); border-color: #2a402d; }
-  .card-tag.cat-lp { color: var(--pink); border-color: #402a35; }
-  .card-tag.cat-tool { color: var(--accent-2); border-color: #403a25; }
-  .card-tag.cat-concept { color: #aaa; }
-  .card-tag.cat-chrome { color: #ff9a6b; border-color: #402d22; }
-  .card-tag.cat-scaffold { color: #6f7480; }
-  .card-tagline { font-size: 13.5px; color: var(--muted); margin: 4px 0 10px; }
-  .card-detail { font-size: 13px; color: #c5c8cf; margin-bottom: 10px; }
-  .card-meta {
-    display: flex; flex-direction: column; gap: 4px;
-    font-size: 12px; padding-top: 12px; border-top: 1px dashed #23262d;
-  }
-  .meta-row { display: flex; gap: 8px; align-items: flex-start; }
-  .meta-key { color: var(--muted); min-width: 56px; flex-shrink: 0; }
-  .meta-val { color: var(--text); }
-  .meta-val.path { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 11px; color: #b8bbc4; word-break: break-all; }
-  .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
-  .status-live { background: var(--green); }
-  .status-dev { background: var(--accent); }
-  .status-mvp { background: var(--accent-2); }
-  .status-concept { background: var(--muted); }
-  .status-scaffold { background: #4a4d55; }
+  .search:focus { outline: none; }
+  .search::placeholder { color: var(--ink-mute); }
 
-  /* Admin action bar */
+  /* ---------- Grid of entries ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    column-gap: 1px;
+    row-gap: 0;
+    background: var(--rule-soft);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .entry {
+    background: var(--paper);
+    padding: 22px 24px 18px;
+    display: flex; flex-direction: column;
+    position: relative;
+    border-bottom: 1px solid var(--rule-soft);
+    transition: background .15s;
+  }
+  .entry:hover { background: #f7f3eb; }
+  .entry.missing { opacity: .5; }
+  .entry.flash { animation: ink-mark 2s ease; }
+  @keyframes ink-mark {
+    0%   { box-shadow: inset 3px 0 0 0 var(--accent); }
+    100% { box-shadow: inset 3px 0 0 0 transparent; }
+  }
+  .entry-head {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    align-items: baseline;
+    column-gap: 12px;
+    margin-bottom: 6px;
+  }
+  .entry-no {
+    font-size: 11px;
+    color: var(--ink-mute);
+    letter-spacing: .04em;
+    font-variant-numeric: tabular-nums;
+  }
+  .entry-name {
+    font-size: 19px;
+    line-height: 1.25;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+    font-weight: 500;
+  }
+  .entry-name .missing-tag {
+    margin-left: 8px;
+    font-size: 10px; letter-spacing: .14em;
+    color: var(--danger); text-transform: uppercase;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .entry-cat {
+    font-size: 10px;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .entry-tagline {
+    grid-column: 2 / -1;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    margin-top: 2px;
+    line-height: 1.62;
+  }
+  .entry-detail {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule-soft);
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.7;
+  }
+  .entry-meta {
+    display: grid;
+    grid-template-columns: 64px 1fr;
+    column-gap: 16px;
+    row-gap: 4px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--rule-soft);
+    font-size: 12px;
+  }
+  .meta-k {
+    color: var(--ink-mute);
+    font-size: 10px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    padding-top: 2px;
+  }
+  .meta-v { color: var(--ink-2); }
+  .meta-v.path {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    word-break: break-all;
+  }
+  .meta-v.status { display: flex; align-items: center; gap: 8px; }
+  .status-mark {
+    display: inline-block;
+    width: 7px; height: 7px;
+    margin-top: 1px;
+  }
+  .status-live    { background: var(--live); }
+  .status-dev     { background: var(--accent); }
+  .status-mvp     { background: var(--accent-soft); }
+  .status-concept { background: var(--ink-mute); }
+  .status-scaffold{
+    background: transparent;
+    border: 1px solid var(--ink-mute);
+  }
+
+  /* ---------- Action bar ---------- */
   .actions {
-    display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--rule-soft);
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 1px;
+    background: var(--rule-soft);
   }
-  .btn {
-    flex: 1; min-width: 0;
-    background: #1f232b; border: 1px solid var(--line); color: var(--text);
-    border-radius: 7px; padding: 7px 10px; font-size: 12.5px; cursor: pointer;
-    font-family: inherit; transition: background .12s, border-color .12s, color .12s;
-    display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  .act {
+    background: var(--paper);
+    border: none;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    padding: 11px 12px;
+    cursor: pointer;
+    transition: background .12s, color .12s;
   }
-  .btn:hover { background: #272c36; border-color: #3a3e47; }
-  .btn.primary { background: #2c1a10; border-color: #6b3217; color: var(--accent); }
-  .btn.primary:hover { background: #3a2014; border-color: var(--accent); }
-  .btn.run { background: #2a210e; border-color: #6b541d; color: var(--accent-2); }
-  .btn.run:hover { background: #38290f; border-color: var(--accent-2); }
-  .btn.danger { background: #2a141a; border-color: #5b2330; color: var(--red); flex: 0 0 auto; padding: 7px 10px; }
-  .btn.danger:hover { background: #381822; border-color: var(--red); }
-  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .act:hover { background: var(--ink); color: var(--paper); }
+  .act.primary { color: var(--ink); font-weight: 600; }
+  .act.run { color: var(--ink); }
+  .act.danger { color: var(--danger); }
+  .act.danger:hover { background: var(--danger); color: var(--paper); }
+  .act:disabled { opacity: .35; cursor: not-allowed; }
+  .act:disabled:hover { background: var(--paper); color: var(--ink); }
 
-  .empty { color: var(--muted); padding: 40px 0; text-align: center; font-size: 14px; }
-  footer {
-    margin-top: 80px; padding-top: 28px; border-top: 1px solid var(--line);
-    color: var(--muted); font-size: 12px;
-    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  /* ---------- Empty state ---------- */
+  .empty {
+    padding: 80px 0;
+    text-align: center;
+    color: var(--ink-mute);
+    font-size: 13px;
+    letter-spacing: .04em;
   }
 
-  /* Modal */
+  /* ---------- Footer ---------- */
+  footer.colophon {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid var(--ink);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    color: var(--ink-soft);
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  footer.colophon .credit { text-align: right; }
+  footer.colophon .motto { text-align: center; font-style: italic; text-transform: none; letter-spacing: .02em; color: var(--ink-2); }
+
+  /* ---------- Modal ---------- */
   .modal-bg {
-    position: fixed; inset: 0; background: rgba(8,9,12,.78); z-index: 100;
-    display: flex; align-items: center; justify-content: center; padding: 24px;
-    backdrop-filter: blur(4px);
+    position: fixed; inset: 0;
+    background: rgba(21, 20, 15, 0.42);
+    z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px;
   }
   .modal {
-    background: var(--bg-card); border: 1px solid var(--line); border-radius: 14px;
-    width: 100%; max-width: 620px; padding: 22px 22px 18px;
-    box-shadow: 0 24px 60px rgba(0,0,0,.45);
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    width: 100%; max-width: 640px;
+    padding: 28px 30px 22px;
   }
-  .modal h2 { margin: 0 0 4px; font-size: 18px; }
-  .modal .sub { color: var(--muted); font-size: 13px; margin-bottom: 14px; }
-  .modal .sub code { background: #20232a; padding: 1px 6px; border-radius: 4px; font-size: 11.5px; color: #c5c8cf; }
+  .modal-eyebrow {
+    font-size: 10px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+  }
+  .modal h2 {
+    margin: 0 0 14px;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+  }
+  .modal .sub {
+    color: var(--ink-soft);
+    font-size: 12px;
+    margin-bottom: 16px;
+    line-height: 1.7;
+  }
+  .modal .sub .cmd {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    background: var(--paper-2);
+    padding: 2px 6px;
+    font-size: 11px;
+    color: var(--ink-2);
+    border: 1px solid var(--rule);
+  }
   .modal textarea {
-    width: 100%; min-height: 160px; background: var(--bg-2); color: var(--text);
-    border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px;
-    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; line-height: 1.5;
+    width: 100%;
+    min-height: 180px;
+    background: var(--paper-2);
+    color: var(--ink);
+    border: 1px solid var(--rule);
+    padding: 14px 16px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.6;
     resize: vertical;
   }
-  .modal textarea:focus { outline: none; border-color: var(--accent); }
-  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
-  .modal .hint { color: var(--muted); font-size: 11px; margin-top: 8px; }
-
-  /* Toast */
-  .toast-wrap { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 200; }
-  .toast {
-    background: var(--bg-card); border: 1px solid var(--line); padding: 10px 14px;
-    border-radius: 8px; font-size: 13px; min-width: 220px;
-    box-shadow: 0 10px 28px rgba(0,0,0,.4);
+  .modal textarea:focus { outline: none; border-color: var(--ink); }
+  .modal-actions {
+    display: flex; justify-content: flex-end; gap: 1px;
+    margin-top: 14px;
+    background: var(--rule-soft);
   }
-  .toast.ok { border-color: #2a402d; color: var(--green); }
-  .toast.err { border-color: #5b2330; color: var(--red); }
+  .modal-actions .act {
+    background: var(--paper);
+    padding: 12px 22px;
+  }
+  .modal .hint {
+    color: var(--ink-mute);
+    font-size: 10px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
 
-  @media (max-width: 640px) {
-    .wrap { padding: 28px 16px 64px; }
-    h1 { font-size: 26px; }
-    .search { width: 100%; margin: 8px 0 0; min-width: 0; }
+  /* ---------- Toast ---------- */
+  .toast-wrap {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    display: flex; flex-direction: column; gap: 8px;
+    z-index: 200;
+  }
+  .toast {
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    border-left: 3px solid var(--ink);
+    padding: 11px 16px;
+    font-size: 12px;
+    letter-spacing: .04em;
+    min-width: 240px;
+    color: var(--ink-2);
+  }
+  .toast.ok { border-left-color: var(--live); }
+  .toast.err { border-left-color: var(--danger); color: var(--danger); }
+  .toast .kind {
+    font-size: 9px; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--ink-mute);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 900px) {
+    .wrap { padding: 36px 22px 64px; }
+    .mast { grid-template-columns: 1fr; }
+    .mast .issue { text-align: left; }
+    .summary { grid-template-columns: repeat(3, 1fr); }
+    .summary .cell { border-bottom: 1px solid var(--rule-soft); }
+    .rail-inner { gap: 8px; }
+    .search-wrap { width: 100%; margin: 8px 0 0; }
+    .search { width: 100%; min-width: 0; }
+    footer.colophon { grid-template-columns: 1fr; text-align: left; }
+    footer.colophon .credit, footer.colophon .motto { text-align: left; }
+  }
+  @media (max-width: 540px) {
+    .wrap { padding: 28px 18px 56px; }
+    .mast .issue .n { font-size: 40px; }
+    .summary { grid-template-columns: repeat(2, 1fr); }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-<header class="intro">
-  <div class="eyebrow">
-    Claude Code Projects Index
-    <span id="liveBadge" class="live-badge" style="display:none"><span class="dot"></span>LOCAL CONTROL PANEL</span>
-  </div>
-  <h1>このiMacで組み上げてきた <span class="accent">プロダクト/構想</span> の一覧</h1>
-  <p class="lede">
-    Claude Code CLI を中核に、SwiftUI / Tauri / Cloudflare Workers / Next.js などを横断して構築してきたアプリ・Webサービス・LP・ツール・構想の総覧。
-    <code>~/.claude/projects/.../memory/</code> に記録された設計メモと、ホーム配下の実体ディレクトリ走査をマージ。
-  </p>
-  <div class="stats" id="stats"></div>
-</header>
+  <header class="mast">
+    <div>
+      <div class="colophon">
+        <span>Vol. I</span>
+        <span class="sep">/</span>
+        <span>Claude Code Projects Index</span>
+        <span class="sep">/</span>
+        <span id="dateline">2026.05.12</span>
+        <span class="sep">/</span>
+        <span class="live" id="liveBadge">監視中 — Local Control Panel</span>
+      </div>
+      <h1 class="serif">このiMacで組み上げた、<br>プロダクトと構想の総覧。</h1>
+      <p class="h1-sub">
+        Claude Code CLI を中核に、SwiftUI / Tauri / Cloudflare Workers / Next.js などを横断して構築してきたアプリケーション、Webサービス、ランディングページ、ツール、構想の総目録。設計メモと実体ディレクトリの走査を統合し、ローカル時はそのまま開発線へ接続できる。
+      </p>
+    </div>
+    <div class="issue serif">
+      Items
+      <span class="n mono" id="issueCount">—</span>
+    </div>
+  </header>
 
-<div class="controls">
-  <div class="filters" id="filters"></div>
-</div>
+  <section class="summary" id="summary"></section>
 
-<div id="grid"></div>
+  <nav class="rail">
+    <div class="rail-inner">
+      <span class="rail-label">Section</span>
+      <div id="filters" style="display:flex; flex-wrap:wrap;"></div>
+      <div class="search-wrap">
+        <span class="search-lbl">Search</span>
+        <input class="search" id="search" type="search" placeholder="名称・技術・概要・パス" autocomplete="off" />
+      </div>
+    </div>
+  </nav>
 
-<footer>
-  <span>Generated: 2026-05-12 — by Ren Murata (<a href="https://github.com/RenMurata-ops" target="_blank" rel="noopener">@RenMurata-ops</a>)</span>
-  <span>Bare Stark — <i>Made with reason.</i></span>
-</footer>
+  <main id="grid"></main>
+
+  <footer class="colophon">
+    <span>Edited by Ren Murata &nbsp;·&nbsp; Tokyo</span>
+    <span class="motto serif">Made with reason.</span>
+    <span class="credit">
+      <a href="https://github.com/RenMurata-ops/claude-code-projects-index" target="_blank" rel="noopener">github.com/RenMurata-ops</a>
+    </span>
+  </footer>
 
 </div>
 
@@ -204,34 +548,38 @@ const state = {
   cat: "all", q: "",
   adminMode: false,
   projects: [],
-  prevPaths: new Set(),
   newPaths: new Set()
 };
 
 const CATS = [
-  { id: "all", label: "All" },
-  { id: "ios", label: "iOS / Mobile" },
-  { id: "desktop", label: "Desktop" },
-  { id: "web", label: "Web / SaaS" },
-  { id: "lp", label: "LP / Static" },
-  { id: "tool", label: "Tool / Infra" },
-  { id: "chrome", label: "Chrome Ext" },
-  { id: "concept", label: "Concept" },
+  { id: "all",      label: "All" },
+  { id: "ios",      label: "Mobile" },
+  { id: "desktop",  label: "Desktop" },
+  { id: "web",      label: "Web" },
+  { id: "lp",       label: "Static" },
+  { id: "tool",     label: "Tool" },
+  { id: "chrome",   label: "Extension" },
+  { id: "concept",  label: "Concept" },
   { id: "scaffold", label: "Scaffold" }
 ];
 
-function catCount(id) {
-  return id === "all" ? state.projects.length : state.projects.filter(p => p.cat === id).length;
-}
-function catLabel(id) { return (CATS.find(c => c.id === id) || {}).label || id; }
-function statusClass(s) {
-  return { live: "status-live", dev: "status-dev", mvp: "status-mvp", concept: "status-concept", scaffold: "status-scaffold" }[s] || "status-scaffold";
-}
-function escapeHtml(s) {
-  return String(s == null ? "" : s)
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
+const CAT_LABEL = {
+  ios: "Mobile", desktop: "Desktop", web: "Web", lp: "Static",
+  tool: "Tool", chrome: "Extension", concept: "Concept", scaffold: "Scaffold"
+};
+
+const STATUS_LABEL = {
+  live: "Live", dev: "In Development", mvp: "MVP", concept: "Concept", scaffold: "Scaffold"
+};
+
+const ESCAPED = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" };
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ESCAPED[c]); }
+
+function pad(n, w) { return String(n).padStart(w, "0"); }
+function statusClass(s) { return ({
+  live: "status-live", dev: "status-dev", mvp: "status-mvp",
+  concept: "status-concept", scaffold: "status-scaffold"
+})[s] || "status-scaffold"; }
 
 async function detectAdminMode() {
   try {
@@ -248,46 +596,48 @@ async function loadProjects() {
       const r = await fetch("/api/projects", { cache: "no-store" });
       const j = await r.json();
       return j.projects || [];
-    } catch (e) { console.error("api/projects failed:", e); }
+    } catch (e) { console.error(e); }
   }
-  // static fallback (GitHub Pages)
   try {
     const r = await fetch("./projects.json", { cache: "no-store" });
     return await r.json();
-  } catch (e) {
-    console.error("projects.json fetch failed:", e);
-    return [];
-  }
+  } catch (e) { console.error(e); return []; }
+}
+
+function renderSummary() {
+  const counts = { live: 0, mvp: 0, dev: 0, concept: 0, scaffold: 0 };
+  for (const p of state.projects) counts[p.status] = (counts[p.status] || 0) + 1;
+  const total = state.projects.length;
+  document.getElementById("issueCount").textContent = pad(total, 3);
+  const cells = [
+    { lbl: "Total",    num: pad(total, 3) },
+    { lbl: "Live",     num: pad(counts.live, 3) },
+    { lbl: "MVP",      num: pad(counts.mvp, 3) },
+    { lbl: "In Dev",   num: pad(counts.dev, 3) },
+    { lbl: "Concept",  num: pad(counts.concept, 3) },
+    { lbl: "Scaffold", num: pad(counts.scaffold, 3) }
+  ];
+  document.getElementById("summary").innerHTML = cells.map(c => `
+    <div class="cell">
+      <div class="lbl">${esc(c.lbl)}</div>
+      <div class="num mono">${esc(c.num)}</div>
+    </div>
+  `).join("");
 }
 
 function renderFilters() {
   const root = document.getElementById("filters");
   root.innerHTML = "";
   for (const c of CATS) {
+    const n = c.id === "all" ? state.projects.length : state.projects.filter(p => p.cat === c.id).length;
     const btn = document.createElement("button");
-    btn.className = "filter-btn" + (state.cat === c.id ? " active" : "");
-    btn.innerHTML = escapeHtml(c.label) + ' <span class="filter-count">' + catCount(c.id) + '</span>';
+    btn.className = "filter" + (state.cat === c.id ? " active" : "");
+    btn.innerHTML = `${esc(c.label)}<span class="ct mono">${pad(n, 2)}</span>`;
     btn.onclick = () => { state.cat = c.id; render(); };
     root.appendChild(btn);
   }
-  const search = document.createElement("input");
-  search.className = "search";
-  search.placeholder = "Search (名前・技術・概要)";
-  search.value = state.q;
-  search.oninput = (e) => { state.q = e.target.value.toLowerCase(); renderGrid(); };
-  root.appendChild(search);
-}
-
-function renderStats() {
-  const counts = { live: 0, mvp: 0, dev: 0, concept: 0, scaffold: 0 };
-  for (const p of state.projects) counts[p.status] = (counts[p.status] || 0) + 1;
-  document.getElementById("stats").innerHTML =
-    '<div><b>' + state.projects.length + '</b> projects total</div>' +
-    '<div><span class="status-dot status-live"></span><b>' + (counts.live||0) + '</b> live</div>' +
-    '<div><span class="status-dot status-mvp"></span><b>' + (counts.mvp||0) + '</b> MVP</div>' +
-    '<div><span class="status-dot status-dev"></span><b>' + (counts.dev||0) + '</b> in dev</div>' +
-    '<div><span class="status-dot status-concept"></span><b>' + (counts.concept||0) + '</b> concept</div>' +
-    '<div><span class="status-dot status-scaffold"></span><b>' + (counts.scaffold||0) + '</b> scaffold</div>';
+  const search = document.getElementById("search");
+  if (search) search.oninput = (e) => { state.q = e.target.value.toLowerCase(); renderGrid(); };
 }
 
 function renderGrid() {
@@ -300,87 +650,92 @@ function renderGrid() {
     }
     return true;
   });
-  grid.innerHTML = "";
   if (filtered.length === 0) {
-    grid.innerHTML = '<div class="empty">該当するプロジェクトが見つかりませんでした。</div>';
+    grid.innerHTML = '<div class="empty">該当する項目はありません。</div>';
     return;
   }
-  const wrap = document.createElement("div");
-  wrap.className = "grid";
-  for (const p of filtered) {
-    const card = document.createElement("div");
+  let html = '<div class="grid">';
+  filtered.forEach((p, i) => {
+    const overallIdx = state.projects.indexOf(p) + 1;
     const isNew = p.path && state.newPaths.has(p.path);
     const missing = state.adminMode && p.path && p.exists === false;
-    card.className = "card" + (isNew ? " new-flash" : "") + (missing ? " missing" : "");
-    let html = "";
-    html += '<div class="card-head">';
-    html += '  <div class="card-name">' + escapeHtml(p.name) + (missing ? ' <span style="font-size:11px;color:var(--red)">(missing)</span>' : '') + '</div>';
-    html += '  <span class="card-tag cat-' + escapeHtml(p.cat) + '">' + escapeHtml(catLabel(p.cat)) + '</span>';
-    html += '</div>';
-    html += '<div class="card-tagline">' + escapeHtml(p.tagline) + '</div>';
-    if (p.detail) html += '<div class="card-detail">' + escapeHtml(p.detail) + '</div>';
-    html += '<div class="card-meta">';
-    html += '<div class="meta-row"><span class="meta-key">Status</span><span class="meta-val"><span class="status-dot ' + statusClass(p.status) + '"></span>' + escapeHtml(p.statusLabel) + '</span></div>';
-    html += '<div class="meta-row"><span class="meta-key">Stack</span><span class="meta-val">' + escapeHtml(p.stack) + '</span></div>';
-    if (p.path) html += '<div class="meta-row"><span class="meta-key">Path</span><span class="meta-val path">' + escapeHtml(p.path) + '</span></div>';
-    if (p.monetize) html += '<div class="meta-row"><span class="meta-key">$</span><span class="meta-val">' + escapeHtml(p.monetize) + '</span></div>';
-    html += '</div>';
+    const classes = ["entry"];
+    if (isNew) classes.push("flash");
+    if (missing) classes.push("missing");
+    html += `<article class="${classes.join(" ")}">`;
+    html += `<header class="entry-head">`;
+    html += `  <span class="entry-no mono">${pad(overallIdx, 3)}</span>`;
+    html += `  <h3 class="entry-name serif">${esc(p.name)}${missing ? ' <span class="missing-tag mono">Missing</span>' : ''}</h3>`;
+    html += `  <span class="entry-cat">${esc(CAT_LABEL[p.cat] || p.cat)}</span>`;
+    html += `  <p class="entry-tagline">${esc(p.tagline)}</p>`;
+    html += `</header>`;
+    if (p.detail) html += `<div class="entry-detail">${esc(p.detail)}</div>`;
+    html += `<dl class="entry-meta">`;
+    html += `  <dt class="meta-k">Status</dt><dd class="meta-v status"><span class="status-mark ${statusClass(p.status)}"></span>${esc(p.statusLabel || STATUS_LABEL[p.status] || p.status)}</dd>`;
+    html += `  <dt class="meta-k">Stack</dt><dd class="meta-v">${esc(p.stack)}</dd>`;
+    if (p.path)     html += `  <dt class="meta-k">Path</dt><dd class="meta-v path">${esc(p.path)}</dd>`;
+    if (p.monetize) html += `  <dt class="meta-k">Revenue</dt><dd class="meta-v">${esc(p.monetize)}</dd>`;
+    html += `</dl>`;
     if (state.adminMode && p.path) {
-      html += '<div class="actions">';
-      html += '  <button class="btn primary" data-act="open" ' + (missing ? "disabled" : "") + '>▸ Ghostty で開く</button>';
-      html += '  <button class="btn run" data-act="task" ' + (missing ? "disabled" : "") + '>⚡ タスク投入</button>';
-      html += '  <button class="btn danger" data-act="delete" title="ゴミ箱へ">🗑</button>';
-      html += '</div>';
+      html += `<div class="actions">`;
+      html += `  <button class="act primary" data-act="open"   ${missing ? "disabled" : ""}>ターミナルで開く</button>`;
+      html += `  <button class="act run"     data-act="task"   ${missing ? "disabled" : ""}>タスクを投入</button>`;
+      html += `  <button class="act danger"  data-act="delete" title="ゴミ箱に移動">削除</button>`;
+      html += `</div>`;
     }
-    card.innerHTML = html;
-    if (state.adminMode && p.path) {
-      card.querySelector('[data-act="open"]')?.addEventListener("click", () => doOpen(p));
-      card.querySelector('[data-act="task"]')?.addEventListener("click", () => doTask(p));
-      card.querySelector('[data-act="delete"]')?.addEventListener("click", () => doDelete(p));
-    }
-    wrap.appendChild(card);
+    html += `</article>`;
+  });
+  html += '</div>';
+  grid.innerHTML = html;
+
+  if (state.adminMode) {
+    const articles = grid.querySelectorAll(".entry");
+    articles.forEach((el, i) => {
+      const p = filtered[i];
+      if (!p || !p.path) return;
+      el.querySelector('[data-act="open"]')?.addEventListener("click", () => doOpen(p));
+      el.querySelector('[data-act="task"]')?.addEventListener("click", () => doTask(p));
+      el.querySelector('[data-act="delete"]')?.addEventListener("click", () => doDelete(p));
+    });
   }
-  grid.appendChild(wrap);
 }
 
 function render() {
-  renderStats();
+  renderSummary();
   renderFilters();
   renderGrid();
   document.getElementById("liveBadge").style.display = state.adminMode ? "inline-flex" : "none";
 }
 
-// ====== admin actions ======
+// ===== admin actions =====
 async function doOpen(p) {
-  toast("Ghostty を起動中…", "ok");
+  toast("起動", "Ghostty を起動しています", "ok");
   try {
     const r = await fetch("/api/open", {
       method: "POST", headers: { "content-type": "application/json" },
       body: JSON.stringify({ path: p.path })
     });
     const j = await r.json();
-    if (!j.ok) toast("失敗: " + (j.err || "unknown"), "err");
-  } catch (e) { toast("通信エラー: " + e.message, "err"); }
+    if (!j.ok) toast("失敗", j.err || "不明なエラー", "err");
+  } catch (e) { toast("通信エラー", e.message, "err"); }
 }
 
 function doTask(p) {
   openPromptModal(p, async (prompt) => {
-    toast("タスク投入中…", "ok");
+    toast("投入", "Ghostty にタスクを送出します", "ok");
     try {
       const r = await fetch("/api/task", {
         method: "POST", headers: { "content-type": "application/json" },
         body: JSON.stringify({ path: p.path, prompt })
       });
       const j = await r.json();
-      if (!j.ok) toast("失敗: " + (j.err || "unknown"), "err");
-      else toast("Ghostty 起動: " + p.name, "ok");
-    } catch (e) { toast("通信エラー: " + e.message, "err"); }
+      if (!j.ok) toast("失敗", j.err || "不明なエラー", "err");
+    } catch (e) { toast("通信エラー", e.message, "err"); }
   });
 }
 
 async function doDelete(p) {
-  const name = p.name + " (" + p.path + ")";
-  const confirmed = window.confirm("ゴミ箱に移動しますか？\n\n" + name + "\n\n後で .Trash から復元できます。");
+  const confirmed = window.confirm("ゴミ箱に移動します。よろしいですか。\n\n" + p.name + "\n" + p.path + "\n\n後で Finder のゴミ箱から復元できます。");
   if (!confirmed) return;
   try {
     const r = await fetch("/api/delete", {
@@ -388,10 +743,10 @@ async function doDelete(p) {
       body: JSON.stringify({ path: p.path })
     });
     const j = await r.json();
-    if (!j.ok) { toast("削除失敗: " + (j.err || "unknown"), "err"); return; }
-    toast("ゴミ箱へ移動: " + p.name, "ok");
+    if (!j.ok) { toast("失敗", j.err || "削除に失敗しました", "err"); return; }
+    toast("削除", p.name + " をゴミ箱へ", "ok");
     await refresh();
-  } catch (e) { toast("通信エラー: " + e.message, "err"); }
+  } catch (e) { toast("通信エラー", e.message, "err"); }
 }
 
 function openPromptModal(p, onSubmit) {
@@ -399,17 +754,21 @@ function openPromptModal(p, onSubmit) {
   root.innerHTML = "";
   const bg = document.createElement("div");
   bg.className = "modal-bg";
-  bg.innerHTML = '\
-    <div class="modal">\
-      <h2>⚡ タスク投入 — ' + escapeHtml(p.name) + '</h2>\
-      <div class="sub">Ghostty で <code>cd ' + escapeHtml(p.path) + ' && claude --dangerously-skip-permissions "&lt;以下のプロンプト&gt;"</code> が実行されます。</div>\
-      <textarea id="taskPrompt" placeholder="例: ログイン画面に Google OAuth を追加してください。既存の form は維持。"></textarea>\
-      <div class="hint">Cmd+Enter で送信 / Esc でキャンセル</div>\
-      <div class="modal-actions">\
-        <button class="btn" id="cancelBtn">キャンセル</button>\
-        <button class="btn run" id="submitBtn">▸ 投入する</button>\
-      </div>\
-    </div>';
+  bg.innerHTML = `
+    <div class="modal">
+      <div class="modal-eyebrow">Task — ${esc(CAT_LABEL[p.cat] || p.cat)}</div>
+      <h2 class="serif">${esc(p.name)} に対する指示</h2>
+      <div class="sub">
+        実行コマンド: <span class="cmd">cd ${esc(p.path)} && claude --dangerously-skip-permissions "&lt;以下の指示&gt;"</span>
+      </div>
+      <textarea id="taskPrompt" placeholder="例: ログイン画面に Google OAuth を追加してください。既存のフォームは維持してください。"></textarea>
+      <div class="hint">送信 Cmd+Enter / 中止 Esc</div>
+      <div class="modal-actions">
+        <button class="act" id="cancelBtn">キャンセル</button>
+        <button class="act primary" id="submitBtn">投入する</button>
+      </div>
+    </div>
+  `;
   root.appendChild(bg);
   const ta = bg.querySelector("#taskPrompt");
   ta.focus();
@@ -428,17 +787,17 @@ function openPromptModal(p, onSubmit) {
   });
 }
 
-function toast(msg, kind) {
+function toast(kind, msg, mode) {
   const root = document.getElementById("toasts");
   const t = document.createElement("div");
-  t.className = "toast " + (kind || "ok");
-  t.textContent = msg;
+  t.className = "toast " + (mode || "ok");
+  t.innerHTML = `<span class="kind">${esc(kind)}</span>${esc(msg)}`;
   root.appendChild(t);
-  setTimeout(() => { t.style.opacity = "0"; t.style.transform = "translateY(10px)"; t.style.transition = "all .3s"; }, 2400);
-  setTimeout(() => t.remove(), 2900);
+  setTimeout(() => { t.style.opacity = "0"; t.style.transform = "translateY(8px)"; t.style.transition = "all .3s"; }, 2600);
+  setTimeout(() => t.remove(), 3000);
 }
 
-// ====== refresh / websocket ======
+// ===== refresh + websocket =====
 async function refresh() {
   const projects = await loadProjects();
   const prev = new Set(state.projects.map(p => p.path).filter(Boolean));
@@ -447,9 +806,9 @@ async function refresh() {
   );
   state.projects = projects;
   render();
-  if (state.newPaths.size > 0) {
-    setTimeout(() => { state.newPaths = new Set(); }, 1800);
-    toast(state.newPaths.size + " 件の更新を検出", "ok");
+  if (state.newPaths.size > 0 && prev.size > 0) {
+    toast("更新", state.newPaths.size + " 件の差分を検出", "ok");
+    setTimeout(() => { state.newPaths = new Set(); }, 2200);
   }
 }
 
@@ -468,6 +827,10 @@ function connectWS() {
 }
 
 (async function init() {
+  // dateline auto-update (yyyy.mm.dd)
+  const d = new Date();
+  document.getElementById("dateline").textContent =
+    d.getFullYear() + "." + pad(d.getMonth() + 1, 2) + "." + pad(d.getDate(), 2);
   state.adminMode = await detectAdminMode();
   await refresh();
   connectWS();
